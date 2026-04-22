@@ -226,7 +226,7 @@ body::before {
 .prod-card:hover { border-color: var(--accent2); }
 .prod-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
 .prod-card-header .pc-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--muted); flex-shrink: 0; width: 22px; }
-.prod-card-header .pc-name { flex: 1; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-card-header .pc-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prod-card-header .pc-gan { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; flex-shrink: 0; }
 .pc-gan.pos { color: var(--green); }
 .pc-gan.neg { color: var(--red); }
@@ -752,15 +752,20 @@ function renderLista() {
     const pctGan = pct(Math.abs(p.ganancia), p.precio);
     const signo  = p.ganancia >= 0 ? '+' : '';
 
-    // Mayorista badge en lista
+    // Mayorista: badge visible en header y fila en body
     let mayBadge = '';
+    let mayHeaderBadge = '';
     if (p.mayoristas && p.mayoristas.length) {
-      const m = p.mayoristas[0];
-      const mcls = m.estado === 'arriba' ? 'pos' : m.estado === 'abajo' ? 'neg' : 'ora';
+      const m      = p.mayoristas[0];
+      const mcls   = m.estado === 'arriba' ? 'pos' : m.estado === 'abajo' ? 'neg' : 'ora';
+      const mcolor = m.estado === 'arriba' ? 'var(--green)' : m.estado === 'abajo' ? 'var(--red)' : 'var(--orange)';
       const memoji = m.estado === 'arriba' ? '✅' : m.estado === 'abajo' ? '🚨' : '⚠️';
+      const mtxt   = m.estado === 'arriba' ? 'Arriba del mayorista' : m.estado === 'abajo' ? 'Abajo del mayorista' : 'Al precio mayorista';
+      const msigno = m.diff >= 0 ? '+' : '';
+      mayHeaderBadge = `<span style="font-size:11px;font-weight:700;color:${mcolor}">${memoji} ${mtxt} (${msigno}${fmt(m.diff)})</span>`;
       mayBadge = `<div class="pcb-item">
-        <div class="pcbi-lbl">vs Mayorista</div>
-        <div class="pcbi-val ${mcls}">${memoji} ${m.estado === 'arriba' ? 'Por arriba' : m.estado === 'abajo' ? 'Por abajo' : 'Igual'}</div>
+        <div class="pcbi-lbl">vs Mayorista (${fmt(m.precio)})</div>
+        <div class="pcbi-val ${mcls}">${memoji} ${msigno}${fmt(m.diff)} (${msigno}${m.margenPct}%)</div>
       </div>`;
     }
 
@@ -770,7 +775,10 @@ function renderLista() {
     card.innerHTML = `
       <div class="prod-card-header" onclick="toggleCard('${p.id}')">
         <span class="pc-num">#${productos.length - i}</span>
-        <span class="pc-name">${p.nombre}</span>
+        <div style="flex:1;min-width:0;overflow:hidden">
+          <div class="pc-name">${p.nombre}</div>
+          ${mayHeaderBadge ? `<div style="margin-top:2px">${mayHeaderBadge}</div>` : ''}
+        </div>
         <span class="pc-gan ${cls}">${fmt(p.ganancia)}</span>
         <span class="pc-arrow">▼</span>
       </div>
