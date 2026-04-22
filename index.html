@@ -5,60 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Analizador ML</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
 <style>
 :root {
-  --bg: #0F0F13;
-  --surface: #18181F;
-  --surface2: #22222C;
-  --border: #2E2E3A;
-  --accent: #FFE600;
-  --accent2: #3483FA;
-  --green: #00D47E;
-  --red: #FF4757;
-  --orange: #FF9F43;
-  --text: #F0F0F5;
-  --muted: #6B6B80;
-  --muted2: #9090A8;
+  --bg: #0F0F13; --surface: #18181F; --surface2: #22222C; --border: #2E2E3A;
+  --accent: #FFE600; --accent2: #3483FA; --green: #00D47E; --red: #FF4757;
+  --orange: #FF9F43; --text: #F0F0F5; --muted: #6B6B80; --muted2: #9090A8;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Instrument Sans', sans-serif;
-  min-height: 100vh;
-  padding: 24px 16px 80px;
-}
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 0; opacity: 0.5;
-}
+body { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; min-height: 100vh; padding: 24px 16px 80px; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.5; }
 .wrap { max-width: 620px; margin: 0 auto; position: relative; z-index: 1; }
 
-/* HEADER */
 .header { margin-bottom: 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .header h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; line-height: 1; }
 .header h1 span { color: var(--accent); }
 .header-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
 .ml-chip { background: var(--accent); color: #000; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 5px 10px; border-radius: 4px; white-space: nowrap; }
+.sync-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); margin-left: 6px; vertical-align: middle; transition: background 0.3s; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.err { background: var(--red); }
 
-/* MAIN TABS */
 .main-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 18px; }
 .main-tab { flex: 1; background: transparent; border: none; border-radius: 8px; padding: 10px 8px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; position: relative; }
 .main-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 .main-tab .badge { position: absolute; top: 5px; right: 7px; background: var(--accent); color: #000; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center; }
-
 .main-panel { display: none; }
 .main-panel.active { display: block; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* CARD */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin-bottom: 12px; }
 .section-label { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* INPUTS */
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted2); }
 .field-input { display: flex; align-items: center; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 0 14px; gap: 6px; transition: border-color 0.2s; }
@@ -74,19 +57,16 @@ body::before {
 .inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .full { grid-column: 1 / -1; }
 
-/* BTN */
 .btn-primary { width: 100%; background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 15px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: transform 0.1s, opacity 0.2s; margin-bottom: 12px; }
 .btn-primary:hover { opacity: 0.9; }
 .btn-primary:active { transform: scale(0.98); }
 
-/* INNER TABS */
 .inner-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 12px; }
 .inner-tab { flex: 1; background: transparent; border: none; border-radius: 6px; padding: 9px 6px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; }
 .inner-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 .inner-panel { display: none; }
 .inner-panel.active { display: block; animation: fadeIn 0.2s ease; }
 
-/* RESULT HERO */
 .result-hero { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 12px; text-align: center; position: relative; overflow: hidden; display: none; }
 .result-hero.visible { display: block; animation: fadeIn 0.3s ease; }
 .result-hero::before { content: ''; position: absolute; bottom: -40px; right: -40px; width: 160px; height: 160px; border-radius: 50%; opacity: 0.06; }
@@ -95,12 +75,9 @@ body::before {
 .r-name { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
 .r-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .r-amount { font-family: 'Syne', sans-serif; font-size: 54px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
-.r-amount.pos { color: var(--green); }
-.r-amount.neg { color: var(--red); }
-.r-amount.neu { color: var(--muted2); }
+.r-amount.pos { color: var(--green); } .r-amount.neg { color: var(--red); } .r-amount.neu { color: var(--muted2); }
 .r-sub { font-size: 12px; color: var(--muted); }
 
-/* DESGLOSE */
 .desglose-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: none; }
 .desglose-card.visible { display: block; }
 .d-header { padding: 12px 18px; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
@@ -110,11 +87,8 @@ body::before {
 .d-row:last-child .dl { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text); font-size: 14px; }
 .d-row .dv { font-family: 'Syne', sans-serif; font-weight: 700; }
 .d-row:last-child .dv { font-size: 18px; }
-.dv.pos { color: var(--green); }
-.dv.neg { color: var(--red); }
-.dv.neu { color: var(--muted2); }
+.dv.pos { color: var(--green); } .dv.neg { color: var(--red); } .dv.neu { color: var(--muted2); }
 
-/* COMPETENCIA */
 .comp-summary { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: none; }
 .comp-summary.visible { display: block; }
 .cs-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: var(--muted2); }
@@ -129,9 +103,7 @@ body::before {
 .ci-info { flex: 1; min-width: 0; }
 .ci-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
 .ci-diff { font-size: 11px; font-weight: 600; }
-.ci-diff.mas-caro { color: var(--green); }
-.ci-diff.mas-barato { color: var(--red); }
-.ci-diff.igual { color: var(--muted); }
+.ci-diff.mas-caro { color: var(--red); } .ci-diff.mas-barato { color: var(--green); } .ci-diff.igual { color: var(--muted); }
 .ci-price { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; flex-shrink: 0; }
 .ci-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0; transition: color 0.2s; }
 .ci-del:hover { color: var(--red); }
@@ -147,54 +119,26 @@ body::before {
 .btn-add { background: var(--accent2); color: #fff; border: none; border-radius: 10px; padding: 0 14px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; }
 .btn-add:hover { opacity: 0.85; }
 
-/* ─── MAYORISTA ─── */
-.may-empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 13px; }
-.may-empty .icon { font-size: 28px; margin-bottom: 8px; }
-
 .may-input-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
 .may-input-row .field { flex: 1; }
 .btn-may { background: var(--orange); color: #000; border: none; border-radius: 10px; padding: 0 16px; height: 50px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; flex-shrink: 0; }
 .btn-may:hover { opacity: 0.85; }
-
-.may-result {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  display: none;
-  margin-bottom: 12px;
-}
+.may-result { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; display: none; margin-bottom: 12px; }
 .may-result.visible { display: block; animation: fadeIn 0.3s ease; }
-
-.may-veredicto {
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-}
+.may-veredicto { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
 .may-veredicto .mv-icon { font-size: 32px; margin-bottom: 8px; }
-.may-veredicto .mv-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
+.may-veredicto .mv-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
 .may-veredicto .mv-sub { font-size: 12px; color: var(--muted); }
 .may-veredicto.arriba { border-top: 3px solid var(--green); }
-.may-veredicto.abajo  { border-top: 3px solid var(--red); }
-.may-veredicto.igual  { border-top: 3px solid var(--orange); }
-.mv-title.arriba { color: var(--green); }
-.mv-title.abajo  { color: var(--red); }
-.mv-title.igual  { color: var(--orange); }
-
+.may-veredicto.abajo { border-top: 3px solid var(--red); }
+.may-veredicto.igual { border-top: 3px solid var(--orange); }
+.mv-title.arriba { color: var(--green); } .mv-title.abajo { color: var(--red); } .mv-title.igual { color: var(--orange); }
 .may-rows { padding: 4px 0; }
 .may-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
 .may-row:last-child { border-bottom: none; }
 .may-row .mr-l { color: var(--muted2); }
 .may-row .mr-v { font-family: 'Syne', sans-serif; font-weight: 700; }
-.mr-v.pos { color: var(--green); }
-.mr-v.neg { color: var(--red); }
-.mr-v.ora { color: var(--orange); }
-
+.mr-v.pos { color: var(--green); } .mr-v.neg { color: var(--red); } .mr-v.ora { color: var(--orange); }
 .may-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .may-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.2s ease; }
 .mi-info { flex: 1; min-width: 0; }
@@ -205,8 +149,7 @@ body::before {
 .mi-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0; transition: color 0.2s; }
 .mi-del:hover { color: var(--red); }
 
-/* ─── LISTA ─── */
-.lista-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.lista-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
 .lista-header h2 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; }
 .btn-clear { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; }
 .btn-clear:hover { border-color: var(--red); color: var(--red); }
@@ -219,29 +162,23 @@ body::before {
 .lr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .lr-item { text-align: center; }
 .lr-item .lr-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
-.lr-item .lr-val.pos { color: var(--green); }
-.lr-item .lr-val.neg { color: var(--red); }
+.lr-item .lr-val.pos { color: var(--green); } .lr-item .lr-val.neg { color: var(--red); }
 .lr-item .lr-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 1px; }
 .prod-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 10px; animation: fadeIn 0.25s ease; transition: border-color 0.2s; }
 .prod-card:hover { border-color: var(--accent2); }
 .prod-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
-.prod-card-header .pc-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--muted); flex-shrink: 0; width: 22px; }
-.prod-card-header .pc-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.prod-card-header .pc-gan { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; flex-shrink: 0; }
-.pc-gan.pos { color: var(--green); }
-.pc-gan.neg { color: var(--red); }
-.pc-gan.neu { color: var(--muted2); }
-.prod-card-header .pc-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; transition: transform 0.2s; }
+.pc-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--muted); flex-shrink: 0; width: 22px; }
+.pc-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-gan { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; flex-shrink: 0; }
+.pc-gan.pos { color: var(--green); } .pc-gan.neg { color: var(--red); } .pc-gan.neu { color: var(--muted2); }
+.pc-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; transition: transform 0.2s; }
 .prod-card.open .pc-arrow { transform: rotate(180deg); }
 .prod-card-body { display: none; border-top: 1px solid var(--border); padding: 14px 18px; background: var(--surface2); }
 .prod-card.open .prod-card-body { display: block; animation: fadeIn 0.2s ease; }
 .pcb-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; margin-bottom: 12px; }
 .pcb-item .pcbi-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
 .pcb-item .pcbi-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
-.pcbi-val.pos { color: var(--green); }
-.pcbi-val.neg { color: var(--red); }
-.pcbi-val.neu { color: var(--muted2); }
-.pcbi-val.ora { color: var(--orange); }
+.pcbi-val.pos { color: var(--green); } .pcbi-val.neg { color: var(--red); } .pcbi-val.neu { color: var(--muted2); } .pcbi-val.ora { color: var(--orange); }
 .pcb-actions { display: flex; gap: 8px; }
 .btn-edit { flex: 1; background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted2); cursor: pointer; transition: all 0.2s; }
 .btn-edit:hover { border-color: var(--accent2); color: var(--accent2); }
@@ -252,24 +189,21 @@ body::before {
 <body>
 <div class="wrap">
 
-  <!-- Header -->
   <div class="header">
     <div>
       <h1>Analizador <span>ML</span></h1>
-      <div class="header-sub">Calculá tu ganancia real · Argentina 2026</div>
+      <div class="header-sub">Calculá tu ganancia real · Argentina 2026 <span class="sync-dot" id="sync-dot" title="Estado sincronización"></span></div>
     </div>
     <div class="ml-chip">MELI ARG</div>
   </div>
 
-  <!-- Main tabs -->
   <div class="main-tabs">
-    <button class="main-tab active" onclick="switchMain('agregar', this)">➕ Agregar</button>
-    <button class="main-tab" onclick="switchMain('lista', this)">📋 Productos <span class="badge" id="badge-count">0</span></button>
+    <button class="main-tab active" id="tab-agregar" onclick="switchMain('agregar', this)">➕ Agregar</button>
+    <button class="main-tab" id="tab-lista" onclick="switchMain('lista', this)">📋 Productos <span class="badge" id="badge-count">0</span></button>
   </div>
 
-  <!-- ═══════════ PANEL AGREGAR ═══════════ -->
+  <!-- PANEL AGREGAR -->
   <div class="main-panel active" id="panel-agregar">
-
     <div class="card">
       <div class="section-label">Producto</div>
       <div class="field">
@@ -278,46 +212,31 @@ body::before {
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="section-label">Mis números</div>
       <div class="inputs-grid">
         <div class="field">
           <label>Precio de venta</label>
-          <div class="field-input">
-            <span class="signo">$</span>
-            <input type="number" id="precio" placeholder="0" min="0" step="100">
-          </div>
+          <div class="field-input"><span class="signo">$</span><input type="number" id="precio" placeholder="0" min="0" step="100"></div>
         </div>
         <div class="field">
           <label>Mi costo</label>
-          <div class="field-input">
-            <span class="signo">$</span>
-            <input type="number" id="costo" placeholder="0" min="0" step="100">
-          </div>
+          <div class="field-input"><span class="signo">$</span><input type="number" id="costo" placeholder="0" min="0" step="100"></div>
         </div>
         <div class="field full">
           <label>Lo que me queda de ML (después de comisiones y retenciones)</label>
-          <div class="field-input green">
-            <span class="signo">$</span>
-            <input type="number" id="neto" placeholder="0" min="0" step="100">
-          </div>
+          <div class="field-input green"><span class="signo">$</span><input type="number" id="neto" placeholder="0" min="0" step="100"></div>
           <div class="helper">Neto acreditado en Mercado Pago después de descontar todo</div>
         </div>
         <div class="field full">
           <label>Precio mayorista (opcional)</label>
-          <div class="field-input orange">
-            <span class="signo">$</span>
-            <input type="number" id="mayorista" placeholder="0 (opcional)" min="0" step="100">
-          </div>
+          <div class="field-input orange"><span class="signo">$</span><input type="number" id="mayorista" placeholder="0 (opcional)" min="0" step="100"></div>
           <div class="helper">Lo que pagás al mayorista — se compara contra lo que te queda de ML</div>
         </div>
       </div>
     </div>
-
     <button class="btn-primary" onclick="calcular()">CALCULAR Y GUARDAR →</button>
 
-    <!-- Resultado hero -->
     <div class="result-hero" id="result-hero">
       <div class="r-name" id="r-name"></div>
       <div class="r-label">Tu ganancia final</div>
@@ -325,14 +244,12 @@ body::before {
       <div class="r-sub" id="r-sub"></div>
     </div>
 
-    <!-- Inner tabs -->
     <div class="inner-tabs" id="inner-tabs" style="display:none">
       <button class="inner-tab active" onclick="switchInner('desglose', this)">📊 Desglose</button>
       <button class="inner-tab" onclick="switchInner('mayorista', this)">🏭 Mayorista</button>
       <button class="inner-tab" onclick="switchInner('competencia', this)">⚔️ Competencia</button>
     </div>
 
-    <!-- Inner: Desglose -->
     <div class="inner-panel active" id="inner-desglose">
       <div class="desglose-card" id="desglose-card">
         <div class="d-header">Desglose detallado</div>
@@ -345,25 +262,18 @@ body::before {
       </div>
     </div>
 
-    <!-- Inner: Mayorista -->
     <div class="inner-panel" id="inner-mayorista">
-
       <div class="card" style="margin-bottom:12px">
         <div class="section-label">Precio Mayorista</div>
         <div class="may-input-row">
           <div class="field">
             <label>Precio mayorista del producto</label>
-            <div class="field-input orange">
-              <span class="signo">$</span>
-              <input type="number" id="may-precio" placeholder="0" min="0" step="100">
-            </div>
+            <div class="field-input orange"><span class="signo">$</span><input type="number" id="may-precio" placeholder="0" min="0" step="100"></div>
             <div class="helper">Lo que pagás al mayorista por esta unidad</div>
           </div>
           <button class="btn-may" onclick="calcularMayorista()">COMPARAR</button>
         </div>
       </div>
-
-      <!-- Resultado mayorista -->
       <div class="may-result" id="may-result">
         <div class="may-veredicto" id="may-veredicto">
           <div class="mv-icon" id="mv-icon">📦</div>
@@ -373,20 +283,15 @@ body::before {
         <div class="may-rows">
           <div class="may-row"><span class="mr-l">Precio mayorista</span><span class="mr-v ora" id="mv-precio-may">$0</span></div>
           <div class="may-row"><span class="mr-l">Neto que recibís de ML</span><span class="mr-v pos" id="mv-neto">$0</span></div>
-          <div class="may-row"><span class="mr-l">Diferencia (neto - mayorista)</span><span class="mr-v" id="mv-diff">$0</span></div>
           <div class="may-row"><span class="mr-l">Margen sobre mayorista</span><span class="mr-v" id="mv-margen">0%</span></div>
         </div>
       </div>
-
-      <!-- Lista de mayoristas guardados -->
       <div id="may-list-wrap" style="display:none">
-        <div class="section-label" style="margin-top:8px">Mayoristas guardados para este producto</div>
+        <div class="section-label" style="margin-top:8px">Mayoristas guardados</div>
         <div class="may-list" id="may-list"></div>
       </div>
-
     </div>
 
-    <!-- Inner: Competencia -->
     <div class="inner-panel" id="inner-competencia">
       <div class="comp-summary" id="comp-summary">
         <div class="cs-row"><span>Tu precio</span><span id="cs-mio">—</span></div>
@@ -395,57 +300,28 @@ body::before {
         <div class="cs-row hl"><span>Promedio mercado</span><span id="cs-avg">—</span></div>
       </div>
       <div class="comp-list" id="comp-list">
-        <div class="comp-empty" id="comp-empty">
-          <div class="icon">⚔️</div>
-          Agregá precios de la competencia en ML
-        </div>
+        <div class="comp-empty" id="comp-empty"><div class="icon">⚔️</div>Agregá precios de la competencia en ML</div>
       </div>
       <div class="add-comp-row">
         <input type="text" class="add-comp-name" id="comp-nombre" placeholder="Nombre competidor" autocomplete="off">
-        <div class="add-comp-pw">
-          <span>$</span>
-          <input type="number" id="comp-precio" placeholder="precio">
-        </div>
+        <div class="add-comp-pw"><span>$</span><input type="number" id="comp-precio" placeholder="precio"></div>
         <button class="btn-add" onclick="agregarComp()">+ Agregar</button>
       </div>
     </div>
+  </div>
 
-  </div><!-- /panel-agregar -->
-
-  <!-- ═══════════ PANEL LISTA ═══════════ -->
+  <!-- PANEL LISTA -->
   <div class="main-panel" id="panel-lista">
     <div class="lista-header">
       <h2>Mis productos</h2>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn-clear" onclick="exportarTexto()" style="border-color:var(--accent2);color:var(--accent2)">📤 Exportar</button>
-        <button class="btn-clear" onclick="mostrarImportar()" style="border-color:var(--green);color:var(--green)">📥 Importar</button>
-        <button class="btn-clear" onclick="limpiarTodo()">🗑 Limpiar</button>
-      </div>
-    </div>
-    <!-- Modal importar -->
-    <div id="modal-importar" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px">
-      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">📥 Pegar datos exportados</div>
-      <textarea id="import-textarea" placeholder="Pegá acá el texto que copiaste con Exportar..." style="width:100%;height:100px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:13px;resize:none;outline:none;font-family:'Instrument Sans',sans-serif"></textarea>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button onclick="confirmarImportar()" style="flex:1;background:var(--green);color:#000;border:none;border-radius:8px;padding:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer">✅ Importar</button>
-        <button onclick="document.getElementById('modal-importar').style.display='none'" style="flex:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
-      </div>
+      <button class="btn-clear" onclick="limpiarTodo()">🗑 Limpiar todo</button>
     </div>
     <div class="lista-resumen" id="lista-resumen">
       <div class="lr-title">Resumen general</div>
       <div class="lr-grid">
-        <div class="lr-item">
-          <div class="lr-val" id="lr-productos">0</div>
-          <div class="lr-lbl">Productos</div>
-        </div>
-        <div class="lr-item">
-          <div class="lr-val pos" id="lr-ganancia">$0</div>
-          <div class="lr-lbl">Ganancia total</div>
-        </div>
-        <div class="lr-item">
-          <div class="lr-val" id="lr-promedio">$0</div>
-          <div class="lr-lbl">Promedio por prod.</div>
-        </div>
+        <div class="lr-item"><div class="lr-val" id="lr-productos">0</div><div class="lr-lbl">Productos</div></div>
+        <div class="lr-item"><div class="lr-val pos" id="lr-ganancia">$0</div><div class="lr-lbl">Ganancia total</div></div>
+        <div class="lr-item"><div class="lr-val" id="lr-promedio">$0</div><div class="lr-lbl">Promedio por prod.</div></div>
       </div>
     </div>
     <div id="lista-container">
@@ -456,13 +332,28 @@ body::before {
     </div>
   </div>
 
-</div><!-- /wrap -->
+</div>
 
 <script>
-// ═══════════════════════════════════════════
-//  ESTADO
-// ═══════════════════════════════════════════
-let productos   = JSON.parse(localStorage.getItem('ml_productos') || '[]');
+// ═══ FIREBASE INIT ═══
+const firebaseConfig = {
+  apiKey: "AIzaSyDEfm8gwvUJ6K0SM7PciAAK0KPf35AdbI0",
+  authDomain: "analizador-ml.firebaseapp.com",
+  projectId: "analizador-ml",
+  storageBucket: "analizador-ml.firebasestorage.app",
+  messagingSenderId: "1079547603597",
+  appId: "1:1079547603597:web:4aea410c162ee7f474d0c4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot ' + (state || '');
+}
+
+// ═══ ESTADO ═══
+let productos    = [];
 let competidores = [];
 let mayoristas   = [];
 let miPrecio     = 0;
@@ -471,30 +362,51 @@ let compId       = 1;
 let mayId        = 1;
 let editandoId   = null;
 
-// ═══════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════
+// ═══ HELPERS ═══
 function fmt(n) {
   if (isNaN(n) || n === null) return '$0';
   const abs = Math.abs(Math.round(n));
-  const str = '$' + abs.toLocaleString('es-AR');
-  return n < 0 ? '-' + str : str;
+  return (n < 0 ? '-$' : '$') + abs.toLocaleString('es-AR');
 }
 function pct(part, total) {
   if (!total) return '0%';
   return (part / total * 100).toFixed(1) + '%';
 }
 function uid() { return Date.now() + Math.random().toString(36).slice(2); }
-async function guardar() {
+
+// ═══ GUARDAR / CARGAR (Firebase + localStorage) ═══
+function guardar() {
   localStorage.setItem('ml_productos', JSON.stringify(productos));
-  try {
-    await setDoc(doc(db, 'datos', 'productos'), { lista: productos });
-  } catch(e) { console.warn('Firebase write error:', e); }
+  setSyncDot('');
+  db.collection('datos').doc('productos').set({ lista: productos })
+    .then(() => setSyncDot('ok'))
+    .catch(() => setSyncDot('err'));
 }
 
-// ═══════════════════════════════════════════
-//  NAVEGACIÓN
-// ═══════════════════════════════════════════
+function cargarProductos() {
+  const local = JSON.parse(localStorage.getItem('ml_productos') || '[]');
+  db.collection('datos').doc('productos').get()
+    .then(snap => {
+      const remoto = snap.exists ? (snap.data().lista || []) : [];
+      if (remoto.length >= local.length) {
+        productos = remoto;
+      } else {
+        productos = local;
+        // Subir local a Firebase si tiene más datos
+        db.collection('datos').doc('productos').set({ lista: local }).catch(() => {});
+      }
+      localStorage.setItem('ml_productos', JSON.stringify(productos));
+      actualizarBadge();
+      setSyncDot('ok');
+    })
+    .catch(() => {
+      productos = local;
+      actualizarBadge();
+      setSyncDot('err');
+    });
+}
+
+// ═══ NAVEGACIÓN ═══
 function switchMain(panel, btn) {
   document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.main-panel').forEach(p => p.classList.remove('active'));
@@ -509,9 +421,7 @@ function switchInner(panel, btn) {
   document.getElementById('inner-' + panel).classList.add('active');
 }
 
-// ═══════════════════════════════════════════
-//  CALCULAR Y GUARDAR
-// ═══════════════════════════════════════════
+// ═══ CALCULAR Y GUARDAR ═══
 function calcular() {
   const nombre    = document.getElementById('nombre').value.trim();
   const precio    = parseFloat(document.getElementById('precio').value) || 0;
@@ -532,7 +442,6 @@ function calcular() {
   const signo       = ganancia >= 0 ? '+' : '-';
   const cls         = ganancia > 0 ? 'pos' : ganancia < 0 ? 'neg' : 'neu';
 
-  // Hero
   const hero = document.getElementById('result-hero');
   hero.className = 'result-hero visible ' + (ganancia > 0 ? 'pos' : ganancia < 0 ? 'neg' : '');
   document.getElementById('r-name').textContent = nombre.toUpperCase();
@@ -541,7 +450,6 @@ function calcular() {
   rAmt.className   = 'r-amount ' + cls;
   document.getElementById('r-sub').textContent = signo + pctGan + ' sobre el precio de venta';
 
-  // Desglose
   document.getElementById('d-precio').textContent = fmt(precio);
   document.getElementById('d-neto').textContent   = fmt(neto);
   document.getElementById('d-ml').textContent     = '-' + fmt(descuentoML);
@@ -553,22 +461,19 @@ function calcular() {
   document.getElementById('desglose-card').className = 'desglose-card visible';
   document.getElementById('inner-tabs').style.display = 'flex';
 
-  // Calcular estado mayorista
   let mayData = null;
   if (mayPrecio > 0) {
     const mayDiff   = neto - mayPrecio;
-    const mayMargen = mayPrecio > 0 ? ((mayDiff / mayPrecio) * 100).toFixed(1) : '0.0';
+    const mayMargen = ((mayDiff / mayPrecio) * 100).toFixed(1);
     const mayEstado = mayDiff > 0 ? 'arriba' : mayDiff < 0 ? 'abajo' : 'igual';
     mayData = { id: 1, precio: mayPrecio, diff: mayDiff, margenPct: mayMargen, estado: mayEstado };
   }
 
-  // Reset mayorista panel
   document.getElementById('may-result').className = 'may-result';
   document.getElementById('may-precio').value = '';
   mayoristas = mayData ? [mayData] : [];
   renderMayoristas();
 
-  // Guardar
   const prod = {
     id: editandoId || uid(),
     nombre, precio, neto, costo, descuentoML, ganancia, pctML,
@@ -589,12 +494,13 @@ function calcular() {
   actualizarBadge();
   actualizarCompSummary();
 
-  // Limpiar form
   document.getElementById('nombre').value    = '';
   document.getElementById('precio').value    = '';
   document.getElementById('neto').value      = '';
   document.getElementById('costo').value     = '';
   document.getElementById('mayorista').value = '';
+  competidores = [];
+  renderCompetidores();
   document.getElementById('nombre').focus();
 }
 
@@ -602,60 +508,30 @@ function actualizarBadge() {
   document.getElementById('badge-count').textContent = productos.length;
 }
 
-// ═══════════════════════════════════════════
-//  MAYORISTA
-// ═══════════════════════════════════════════
+// ═══ MAYORISTA ═══
 function calcularMayorista() {
   const mayPrecio = parseFloat(document.getElementById('may-precio').value) || 0;
   if (!mayPrecio) { document.getElementById('may-precio').focus(); return; }
-  if (!miNeto)    { alert('Primero calculá el producto con su neto de ML.'); return; }
-
-  const diff     = miNeto - mayPrecio;
+  if (!miNeto) { alert('Primero calculá el producto.'); return; }
+  const diff      = miNeto - mayPrecio;
   const margenPct = mayPrecio > 0 ? ((diff / mayPrecio) * 100).toFixed(1) : 0;
-
-  // Veredicto
   let estado, icon, titulo, subtitulo, diffCls;
-  if (diff > 0) {
-    estado    = 'arriba';
-    icon      = '✅';
-    titulo    = 'Vendés POR ARRIBA del mayorista';
-    subtitulo = `Te quedan ${fmt(diff)} por encima del precio mayorista`;
-    diffCls   = 'pos';
-  } else if (diff < 0) {
-    estado    = 'abajo';
-    icon      = '🚨';
-    titulo    = 'Vendés POR DEBAJO del mayorista';
-    subtitulo = `Estás perdiendo ${fmt(Math.abs(diff))} por unidad vendida`;
-    diffCls   = 'neg';
-  } else {
-    estado    = 'igual';
-    icon      = '⚠️';
-    titulo    = 'Vendés AL PRECIO del mayorista';
-    subtitulo = 'No te queda margen sobre el precio mayorista';
-    diffCls   = 'ora';
-  }
-
+  if (diff > 0)      { estado='arriba'; icon='✅'; titulo='Vendés POR ARRIBA del mayorista'; subtitulo='Tu neto de ML supera el precio mayorista'; diffCls='pos'; }
+  else if (diff < 0) { estado='abajo';  icon='🚨'; titulo='Vendés POR DEBAJO del mayorista'; subtitulo='Tu neto de ML no cubre el precio mayorista'; diffCls='neg'; }
+  else               { estado='igual';  icon='⚠️'; titulo='Vendés AL PRECIO del mayorista';  subtitulo='Sin margen sobre el mayorista'; diffCls='ora'; }
   const veredicto = document.getElementById('may-veredicto');
   veredicto.className = 'may-veredicto ' + estado;
   document.getElementById('mv-icon').textContent  = icon;
   const mvT = document.getElementById('mv-title');
-  mvT.textContent  = titulo;
-  mvT.className    = 'mv-title ' + estado;
-  document.getElementById('mv-sub').textContent   = subtitulo;
-
+  mvT.textContent = titulo; mvT.className = 'mv-title ' + estado;
+  document.getElementById('mv-sub').textContent      = subtitulo;
   document.getElementById('mv-precio-may').textContent = fmt(mayPrecio);
-  document.getElementById('mv-neto').textContent       = fmt(miNeto);
-  const mvDiff = document.getElementById('mv-diff');
-  mvDiff.textContent = (diff >= 0 ? '+' : '') + fmt(diff);
-  mvDiff.className   = 'mr-v ' + diffCls;
+  document.getElementById('mv-neto').textContent     = fmt(miNeto);
   const mvMar = document.getElementById('mv-margen');
   mvMar.textContent = (diff >= 0 ? '+' : '') + margenPct + '%';
   mvMar.className   = 'mr-v ' + diffCls;
-
   document.getElementById('may-result').className = 'may-result visible';
-
-  // Guardar mayorista en la lista del panel
-  mayoristas.push({ id: mayId++, precio: mayPrecio, diff, estado, margenPct });
+  mayoristas.push({ id: mayId++, precio: mayPrecio, diff, margenPct, estado });
   renderMayoristas();
   document.getElementById('may-precio').value = '';
   document.getElementById('may-precio').focus();
@@ -665,39 +541,23 @@ function renderMayoristas() {
   const wrap = document.getElementById('may-list-wrap');
   const list = document.getElementById('may-list');
   list.innerHTML = '';
-
   if (!mayoristas.length) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
-
   mayoristas.forEach((m, i) => {
-    const cls   = m.estado === 'arriba' ? 'pos' : m.estado === 'abajo' ? 'neg' : 'ora';
-    const emoji = m.estado === 'arriba' ? '✅' : m.estado === 'abajo' ? '🚨' : '⚠️';
+    const color = m.estado==='arriba' ? 'var(--green)' : m.estado==='abajo' ? 'var(--red)' : 'var(--orange)';
+    const emoji = m.estado==='arriba' ? '✅' : m.estado==='abajo' ? '🚨' : '⚠️';
     const signo = m.diff >= 0 ? '+' : '';
     const el = document.createElement('div');
     el.className = 'may-item';
-    el.innerHTML = `
-      <div class="mi-info">
-        <div class="mi-nombre">Mayorista #${i + 1}</div>
-        <div class="mi-precio">Precio: ${fmt(m.precio)} · Neto ML: ${fmt(miNeto)}</div>
-      </div>
-      <div class="mi-estado" style="color:var(--${cls === 'pos' ? 'green' : cls === 'neg' ? 'red' : 'orange'})">
-        ${emoji} ${signo}${m.margenPct}% sobre el mayorista
-        <span class="ms-monto">(neto ${fmt(miNeto)} vs mayorista ${fmt(m.precio)})</span>
-      </div>
-      <button class="mi-del" onclick="eliminarMay(${m.id})">✕</button>
-    `;
+    el.innerHTML = '<div class="mi-info"><div class="mi-nombre">Mayorista #'+(i+1)+'</div><div class="mi-precio">Precio: '+fmt(m.precio)+' · Neto ML: '+fmt(miNeto)+'</div></div>'
+      + '<div class="mi-estado" style="color:'+color+'">'+emoji+' '+signo+m.margenPct+'%<span class="ms-monto">sobre el mayorista</span></div>'
+      + '<button class="mi-del" onclick="eliminarMay('+m.id+')">✕</button>';
     list.appendChild(el);
   });
 }
+function eliminarMay(id) { mayoristas = mayoristas.filter(m => m.id !== id); renderMayoristas(); }
 
-function eliminarMay(id) {
-  mayoristas = mayoristas.filter(m => m.id !== id);
-  renderMayoristas();
-}
-
-// ═══════════════════════════════════════════
-//  COMPETENCIA
-// ═══════════════════════════════════════════
+// ═══ COMPETENCIA ═══
 function agregarComp() {
   const nombre = document.getElementById('comp-nombre').value.trim();
   const precio = parseFloat(document.getElementById('comp-precio').value);
@@ -708,12 +568,7 @@ function agregarComp() {
   document.getElementById('comp-nombre').focus();
   renderCompetidores();
 }
-
-function eliminarComp(id) {
-  competidores = competidores.filter(c => c.id !== id);
-  renderCompetidores();
-}
-
+function eliminarComp(id) { competidores = competidores.filter(c => c.id !== id); renderCompetidores(); }
 function renderCompetidores() {
   const list  = document.getElementById('comp-list');
   const empty = document.getElementById('comp-empty');
@@ -726,26 +581,20 @@ function renderCompetidores() {
     if (miPrecio) {
       const diff = miPrecio - c.precio;
       const dp = Math.abs(diff / c.precio * 100).toFixed(1);
-      if (diff > 50)       { diffTxt = `Vos cobrás ${dp}% más`;   diffCls = 'mas-caro'; }
-      else if (diff < -50) { diffTxt = `Vos cobrás ${dp}% menos`; diffCls = 'mas-barato'; }
-      else                 { diffTxt = 'Precio similar';           diffCls = 'igual'; }
+      if (diff > 0)      { diffTxt = 'Vos +'+dp+'% más caro';   diffCls = 'mas-caro'; }
+      else if (diff < 0) { diffTxt = 'Vos '+dp+'% más barato';  diffCls = 'mas-barato'; }
+      else               { diffTxt = 'Precio similar';           diffCls = 'igual'; }
     }
     const el = document.createElement('div');
     el.className = 'comp-item';
-    el.innerHTML = `
-      <div class="ci-rank ${i===0?'top':''}">#${i+1}</div>
-      <div class="ci-info">
-        <div class="ci-name">${c.nombre}</div>
-        ${diffTxt ? `<div class="ci-diff ${diffCls}">${diffTxt}</div>` : ''}
-      </div>
-      <div class="ci-price">${fmt(c.precio)}</div>
-      <button class="ci-del" onclick="eliminarComp(${c.id})">✕</button>
-    `;
+    el.innerHTML = '<div class="ci-rank '+(i===0?'top':'')+'">##'+(i+1)+'</div>'
+      + '<div class="ci-info"><div class="ci-name">'+c.nombre+'</div>'+(diffTxt?'<div class="ci-diff '+diffCls+'">'+diffTxt+'</div>':'')+'</div>'
+      + '<div class="ci-price">'+fmt(c.precio)+'</div>'
+      + '<button class="ci-del" onclick="eliminarComp('+c.id+')">✕</button>';
     list.appendChild(el);
   });
   actualizarCompSummary();
 }
-
 function actualizarCompSummary() {
   const sum = document.getElementById('comp-summary');
   if (!competidores.length || !miPrecio) { sum.className = 'comp-summary'; return; }
@@ -758,21 +607,13 @@ function actualizarCompSummary() {
   document.getElementById('cs-avg').textContent = fmt(avg);
 }
 
-// ═══════════════════════════════════════════
-//  LISTA DE PRODUCTOS
-// ═══════════════════════════════════════════
+// ═══ LISTA ═══
 function renderLista() {
   const container = document.getElementById('lista-container');
   const empty     = document.getElementById('lista-empty');
   const resumen   = document.getElementById('lista-resumen');
   container.querySelectorAll('.prod-card').forEach(el => el.remove());
-
-  if (!productos.length) {
-    empty.style.display = 'block';
-    resumen.className   = 'lista-resumen';
-    return;
-  }
-
+  if (!productos.length) { empty.style.display = 'block'; resumen.className = 'lista-resumen'; return; }
   empty.style.display = 'none';
   resumen.className   = 'lista-resumen visible';
 
@@ -789,109 +630,83 @@ function renderLista() {
     const pctGan = pct(Math.abs(p.ganancia), p.precio);
     const signo  = p.ganancia >= 0 ? '+' : '';
 
-    // Mayorista: badge visible en header y fila en body
-    let mayBadge = '';
     let mayHeaderBadge = '';
+    let mayBadge = '';
     if (p.mayoristas && p.mayoristas.length) {
       const m      = p.mayoristas[0];
-      const mcls   = m.estado === 'arriba' ? 'pos' : m.estado === 'abajo' ? 'neg' : 'ora';
-      const mcolor = m.estado === 'arriba' ? 'var(--green)' : m.estado === 'abajo' ? 'var(--red)' : 'var(--orange)';
-      const memoji = m.estado === 'arriba' ? '✅' : m.estado === 'abajo' ? '🚨' : '⚠️';
-      const mtxt   = m.estado === 'arriba' ? 'Arriba del mayorista' : m.estado === 'abajo' ? 'Abajo del mayorista' : 'Al precio mayorista';
-      const msigno = m.diff >= 0 ? '+' : '';
-      mayHeaderBadge = `<span style="font-size:11px;font-weight:700;color:${mcolor}">${memoji} ${mtxt} (${msigno}${m.margenPct}%)</span>`;
-      mayBadge = `<div class="pcb-item">
-        <div class="pcbi-lbl">vs Mayorista (${fmt(m.precio)})</div>
-        <div class="pcbi-val ${mcls}">${memoji} ${msigno}${m.margenPct}% sobre el mayorista</div>
-      </div>`;
+      const mcolor = m.estado==='arriba' ? 'var(--green)' : m.estado==='abajo' ? 'var(--red)' : 'var(--orange)';
+      const memoji = m.estado==='arriba' ? '✅' : m.estado==='abajo' ? '🚨' : '⚠️';
+      const mtxt   = m.estado==='arriba' ? 'Arriba del mayorista' : m.estado==='abajo' ? 'Abajo del mayorista' : 'Al precio mayorista';
+      const msigno = parseFloat(m.margenPct) >= 0 ? '+' : '';
+      mayHeaderBadge = '<span style="font-size:11px;font-weight:700;color:'+mcolor+'">'+memoji+' '+mtxt+' ('+msigno+m.margenPct+'%)</span>';
+      mayBadge = '<div class="pcb-item"><div class="pcbi-lbl">vs Mayorista ('+fmt(m.precio)+')</div><div class="pcbi-val '+(m.estado==='arriba'?'pos':m.estado==='abajo'?'neg':'ora')+'">'+memoji+' '+msigno+m.margenPct+'% sobre el mayorista</div></div>';
     }
 
-    // Competencia: badge visible en header
     let compHeaderBadge = '';
     if (p.competidores && p.competidores.length) {
-      const precios  = p.competidores.map(c => c.precio);
-      const minComp  = Math.min(...precios);
+      const precios   = p.competidores.map(c => c.precio);
+      const minComp   = Math.min(...precios);
       const minNombre = p.competidores.find(c => c.precio === minComp).nombre;
-      const diff     = p.precio - minComp;
-      const diffPct  = Math.abs(diff / minComp * 100).toFixed(1);
+      const diff      = p.precio - minComp;
+      const diffPct   = Math.abs(diff / minComp * 100).toFixed(1);
       let ccolor, cemoji, ctxt;
-      if (diff > 0)       { ccolor='var(--red)';    cemoji='📈'; ctxt=`+${diffPct}% vs mejor precio (${minNombre})`; }
-      else if (diff < 0) { ccolor='var(--green)';  cemoji='📉'; ctxt=`-${diffPct}% vs mejor precio (${minNombre})`; }
-      else               { ccolor='var(--muted2)'; cemoji='≈';  ctxt=`igual al mejor precio (${minNombre})`; }
-      compHeaderBadge = `<span style="font-size:11px;font-weight:700;color:${ccolor}">${cemoji} ${ctxt}</span>`;
+      if (diff > 0)      { ccolor='var(--red)';    cemoji='📈'; ctxt='+'+diffPct+'% vs mejor precio ('+minNombre+')'; }
+      else if (diff < 0) { ccolor='var(--green)';  cemoji='📉'; ctxt='-'+diffPct+'% vs mejor precio ('+minNombre+')'; }
+      else               { ccolor='var(--muted2)'; cemoji='≈';  ctxt='igual al mejor precio ('+minNombre+')'; }
+      compHeaderBadge = '<span style="font-size:11px;font-weight:700;color:'+ccolor+'">'+cemoji+' '+ctxt+'</span>';
+    }
+
+    // Competencia en body
+    let compBody = '';
+    if (p.competidores && p.competidores.length) {
+      const sorted = [...p.competidores].sort((a,b) => a.precio - b.precio);
+      const filas = sorted.map((c, ci) => {
+        const diff = p.precio - c.precio;
+        const dp   = Math.abs(diff / c.precio * 100).toFixed(1);
+        const dtxt = diff > 0 ? 'Vos +'+dp+'%' : diff < 0 ? 'Vos -'+dp+'%' : '≈ igual';
+        const dc   = diff > 0 ? 'var(--red)' : diff < 0 ? 'var(--green)' : 'var(--muted2)';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px">'
+          +'<span style="color:var(--muted2)">#'+(ci+1)+' '+c.nombre+'</span>'
+          +'<span style="display:flex;gap:10px;align-items:center">'
+          +'<span style="color:'+dc+';font-weight:700;font-size:11px">'+dtxt+'</span>'
+          +'<span style="font-family:Syne,sans-serif;font-weight:800">'+fmt(c.precio)+'</span>'
+          +'</span></div>';
+      }).join('');
+      compBody = '<div style="margin-bottom:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">'
+        +'<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">⚔️ Competencia</div>'
+        +filas+'</div>';
     }
 
     const card = document.createElement('div');
     card.className = 'prod-card';
     card.id = 'pc-' + p.id;
-    card.innerHTML = `
-      <div class="prod-card-header" onclick="toggleCard('${p.id}')">
-        <span class="pc-num">#${productos.length - i}</span>
-        <div style="flex:1;min-width:0;overflow:hidden">
-          <div class="pc-name">${p.nombre}</div>
-          ${mayHeaderBadge  ? `<div style="margin-top:2px">${mayHeaderBadge}</div>`  : ''}
-          ${compHeaderBadge ? `<div style="margin-top:2px">${compHeaderBadge}</div>` : ''}
-        </div>
-        <span class="pc-gan ${cls}">${fmt(p.ganancia)}</span>
-        <span class="pc-arrow">▼</span>
-      </div>
-      <div class="prod-card-body">
-        <div class="pcb-grid">
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Precio venta</div>
-            <div class="pcbi-val">${fmt(p.precio)}</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Neto ML</div>
-            <div class="pcbi-val pos">${fmt(p.neto)}</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">ML se llevó</div>
-            <div class="pcbi-val neg">-${fmt(p.descuentoML)} (${p.pctML})</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Mi costo</div>
-            <div class="pcbi-val neg">-${fmt(p.costo)}</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Ganancia</div>
-            <div class="pcbi-val ${cls}">${fmt(p.ganancia)} (${signo}${pctGan})</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Fecha</div>
-            <div class="pcbi-val neu" style="font-size:13px">${p.fecha}</div>
-          </div>
-          ${mayBadge}
-        </div>
-        ${(()=>{
-          if (!p.competidores || !p.competidores.length) return '';
-          const sorted = [...p.competidores].sort((a,b) => a.precio - b.precio);
-          const filas = sorted.map((c,ci) => {
-            const diff = p.precio - c.precio;
-            const dp   = Math.abs(diff / c.precio * 100).toFixed(1);
-            let difftxt, diffcolor;
-            if (diff > 50)       { difftxt = 'Vos +'+dp+'%'; diffcolor='var(--green)'; }
-            else if (diff < -50) { difftxt = 'Vos -'+dp+'%'; diffcolor='var(--red)'; }
-            else                 { difftxt = '≈ igual';       diffcolor='var(--muted2)'; }
-            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px">'
-              + '<span style="color:var(--muted2)">#'+(ci+1)+' '+c.nombre+'</span>'
-              + '<span style="display:flex;gap:10px;align-items:center">'
-              + '<span style="color:'+diffcolor+';font-weight:700;font-size:11px">'+difftxt+'</span>'
-              + '<span style="font-family:Syne,sans-serif;font-weight:800">'+fmt(c.precio)+'</span>'
-              + '</span>'
-              + '</div>';
-          }).join('');
-          return '<div style="margin-bottom:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">'
-            + '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">⚔️ Competencia</div>'
-            + filas
-            + '</div>';
-        })()}
-        <div class="pcb-actions">
-          <button class="btn-edit" onclick="editarProducto('${p.id}')">✏️ Editar</button>
-          <button class="btn-del-prod" onclick="eliminarProducto('${p.id}')">🗑 Eliminar</button>
-        </div>
-      </div>
-    `;
+    card.innerHTML =
+      '<div class="prod-card-header" onclick="toggleCard(\''+p.id+'\')">'+
+        '<span class="pc-num">#'+(productos.length - i)+'</span>'+
+        '<div style="flex:1;min-width:0;overflow:hidden">'+
+          '<div class="pc-name">'+p.nombre+'</div>'+
+          (mayHeaderBadge  ? '<div style="margin-top:2px">'+mayHeaderBadge+'</div>'  : '')+
+          (compHeaderBadge ? '<div style="margin-top:2px">'+compHeaderBadge+'</div>' : '')+
+        '</div>'+
+        '<span class="pc-gan '+cls+'">'+fmt(p.ganancia)+'</span>'+
+        '<span class="pc-arrow">▼</span>'+
+      '</div>'+
+      '<div class="prod-card-body">'+
+        '<div class="pcb-grid">'+
+          '<div class="pcb-item"><div class="pcbi-lbl">Precio venta</div><div class="pcbi-val">'+fmt(p.precio)+'</div></div>'+
+          '<div class="pcb-item"><div class="pcbi-lbl">Neto ML</div><div class="pcbi-val pos">'+fmt(p.neto)+'</div></div>'+
+          '<div class="pcb-item"><div class="pcbi-lbl">ML se llevó</div><div class="pcbi-val neg">-'+fmt(p.descuentoML)+' ('+p.pctML+')</div></div>'+
+          '<div class="pcb-item"><div class="pcbi-lbl">Mi costo</div><div class="pcbi-val neg">-'+fmt(p.costo)+'</div></div>'+
+          '<div class="pcb-item"><div class="pcbi-lbl">Ganancia</div><div class="pcbi-val '+cls+'">'+fmt(p.ganancia)+' ('+signo+pctGan+')</div></div>'+
+          '<div class="pcb-item"><div class="pcbi-lbl">Fecha</div><div class="pcbi-val neu" style="font-size:13px">'+p.fecha+'</div></div>'+
+          mayBadge+
+        '</div>'+
+        compBody+
+        '<div class="pcb-actions">'+
+          '<button class="btn-edit" onclick="editarProducto(\''+p.id+'\')">✏️ Editar</button>'+
+          '<button class="btn-del-prod" onclick="eliminarProducto(\''+p.id+'\')">🗑 Eliminar</button>'+
+        '</div>'+
+      '</div>';
     container.appendChild(card);
   });
 }
@@ -924,7 +739,7 @@ function editarProducto(id) {
   miNeto   = prod.neto;
   renderCompetidores();
   renderMayoristas();
-  document.querySelectorAll('.main-tab')[0].click();
+  document.getElementById('tab-agregar').click();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   document.getElementById('nombre').focus();
 }
@@ -937,130 +752,17 @@ function limpiarTodo() {
   renderLista();
 }
 
-// ═══════════════════════════════════════════
-//  EXPORTAR / IMPORTAR
-// ═══════════════════════════════════════════
-function exportarTexto() {
-  if (!productos.length) { alert('No tenés productos para exportar.'); return; }
-  const texto = btoa(unescape(encodeURIComponent(JSON.stringify(productos))));
-  navigator.clipboard.writeText(texto).then(() => {
-    alert('✅ ¡Copiado! Ahora andá al otro dispositivo, abrí la app, tocá Importar y pegá el texto.');
-  }).catch(() => {
-    // fallback: mostrar en textarea para copiar manual
-    const ta = document.createElement('textarea');
-    ta.value = texto;
-    ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;height:120px;z-index:9999;padding:10px;font-size:12px';
-    document.body.appendChild(ta);
-    ta.select();
-    alert('Seleccioná todo el texto y copialo (Ctrl+C o Cmd+C), después cerrá este cuadro.');
-    setTimeout(() => document.body.removeChild(ta), 5000);
-  });
-}
-
-function mostrarImportar() {
-  const modal = document.getElementById('modal-importar');
-  modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-  if (modal.style.display === 'block') document.getElementById('import-textarea').focus();
-}
-
-function confirmarImportar() {
-  const texto = document.getElementById('import-textarea').value.trim();
-  if (!texto) { alert('Pegá el texto primero.'); return; }
-  try {
-    const json = decodeURIComponent(escape(atob(texto)));
-    const data = JSON.parse(json);
-    if (!Array.isArray(data)) throw new Error();
-    if (productos.length > 0) {
-      const opcion = confirm('Ya tenés ' + productos.length + ' producto(s) guardado(s).
-
-✅ Aceptar = REEMPLAZAR todo con los importados
-❌ Cancelar = AGREGAR los importados a los que ya tenés');
-      if (opcion) {
-        productos = data;
-      } else {
-        const idsExistentes = new Set(productos.map(p => p.id));
-        data.forEach(p => { if (!idsExistentes.has(p.id)) productos.unshift(p); });
-      }
-    } else {
-      productos = data;
-    }
-    guardar();
-    actualizarBadge();
-    renderLista();
-    document.getElementById('modal-importar').style.display = 'none';
-    document.getElementById('import-textarea').value = '';
-    alert('✅ ' + data.length + ' producto(s) importado(s) correctamente.');
-  } catch(e) {
-    alert('❌ El texto no es válido. Asegurate de copiar exactamente lo que exportaste.');
-  }
-}
-
-// ═══════════════════════════════════════════
-//  TECLADO
-// ═══════════════════════════════════════════
+// ═══ TECLADO ═══
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const id = document.activeElement.id;
   if (id === 'comp-nombre' || id === 'comp-precio') agregarComp();
   else if (id === 'may-precio') calcularMayorista();
-  else if (['nombre','precio','neto','costo'].includes(id)) calcular();
+  else if (['nombre','precio','neto','costo','mayorista'].includes(id)) calcular();
 });
 
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-actualizarBadge();
-// cargarDesdeFirebase se define en el módulo Firebase abajo
-window.cargarDesdeFirebase = function() {};
-</script>
-
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDEfm8gwvUJ6K0SM7PciAAK0KPf35AdbI0",
-    authDomain: "analizador-ml.firebaseapp.com",
-    projectId: "analizador-ml",
-    storageBucket: "analizador-ml.firebasestorage.app",
-    messagingSenderId: "1079547603597",
-    appId: "1:1079547603597:web:4aea410c162ee7f474d0c4"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  window.db = getFirestore(app);
-  window.doc = doc;
-  window.setDoc = setDoc;
-  window.getDoc = getDoc;
-
-  // Cargar productos desde Firebase al iniciar
-  window.cargarDesdeFirebase = async function() {
-    try {
-      const snap = await getDoc(doc(window.db, 'datos', 'productos'));
-      if (snap.exists()) {
-        const data = snap.data().lista;
-        if (data && data.length) {
-          productos = data;
-          localStorage.setItem('ml_productos', JSON.stringify(productos));
-          actualizarBadge();
-          // Si estamos en la pestaña lista, refrescarla
-          if (document.getElementById('panel-lista').classList.contains('active')) {
-            renderLista();
-          }
-        }
-      }
-    } catch(e) { console.warn('Firebase read error:', e); }
-  };
-
-  // Sobreescribir guardar para usar Firebase
-  const _guardarOriginal = window.guardar;
-  window.guardar = async function() {
-    localStorage.setItem('ml_productos', JSON.stringify(productos));
-    try {
-      await setDoc(doc(window.db, 'datos', 'productos'), { lista: productos });
-    } catch(e) { console.warn('Firebase write error:', e); }
-  };
+// ═══ INIT ═══
+cargarProductos();
 </script>
 </body>
 </html>
