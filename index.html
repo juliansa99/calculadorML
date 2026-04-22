@@ -416,7 +416,20 @@ body::before {
   <div class="main-panel" id="panel-lista">
     <div class="lista-header">
       <h2>Mis productos</h2>
-      <button class="btn-clear" onclick="limpiarTodo()">🗑 Limpiar todo</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-clear" onclick="exportarTexto()" style="border-color:var(--accent2);color:var(--accent2)">📤 Exportar</button>
+        <button class="btn-clear" onclick="mostrarImportar()" style="border-color:var(--green);color:var(--green)">📥 Importar</button>
+        <button class="btn-clear" onclick="limpiarTodo()">🗑 Limpiar</button>
+      </div>
+    </div>
+    <!-- Modal importar -->
+    <div id="modal-importar" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px">
+      <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">📥 Pegar datos exportados</div>
+      <textarea id="import-textarea" placeholder="Pegá acá el texto que copiaste con Exportar..." style="width:100%;height:100px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-size:13px;resize:none;outline:none;font-family:'Instrument Sans',sans-serif"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button onclick="confirmarImportar()" style="flex:1;background:var(--green);color:#000;border:none;border-radius:8px;padding:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;cursor:pointer">✅ Importar</button>
+        <button onclick="document.getElementById('modal-importar').style.display='none'" style="flex:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Cancelar</button>
+      </div>
     </div>
     <div class="lista-resumen" id="lista-resumen">
       <div class="lr-title">Resumen general</div>
@@ -472,7 +485,12 @@ function pct(part, total) {
   return (part / total * 100).toFixed(1) + '%';
 }
 function uid() { return Date.now() + Math.random().toString(36).slice(2); }
-function guardar() { localStorage.setItem('ml_productos', JSON.stringify(productos)); }
+async function guardar() {
+  localStorage.setItem('ml_productos', JSON.stringify(productos));
+  try {
+    await setDoc(doc(db, 'datos', 'productos'), { lista: productos });
+  } catch(e) { console.warn('Firebase write error:', e); }
+}
 
 // ═══════════════════════════════════════════
 //  NAVEGACIÓN
@@ -920,6 +938,64 @@ function limpiarTodo() {
 }
 
 // ═══════════════════════════════════════════
+//  EXPORTAR / IMPORTAR
+// ═══════════════════════════════════════════
+function exportarTexto() {
+  if (!productos.length) { alert('No tenés productos para exportar.'); return; }
+  const texto = btoa(unescape(encodeURIComponent(JSON.stringify(productos))));
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('✅ ¡Copiado! Ahora andá al otro dispositivo, abrí la app, tocá Importar y pegá el texto.');
+  }).catch(() => {
+    // fallback: mostrar en textarea para copiar manual
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;height:120px;z-index:9999;padding:10px;font-size:12px';
+    document.body.appendChild(ta);
+    ta.select();
+    alert('Seleccioná todo el texto y copialo (Ctrl+C o Cmd+C), después cerrá este cuadro.');
+    setTimeout(() => document.body.removeChild(ta), 5000);
+  });
+}
+
+function mostrarImportar() {
+  const modal = document.getElementById('modal-importar');
+  modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+  if (modal.style.display === 'block') document.getElementById('import-textarea').focus();
+}
+
+function confirmarImportar() {
+  const texto = document.getElementById('import-textarea').value.trim();
+  if (!texto) { alert('Pegá el texto primero.'); return; }
+  try {
+    const json = decodeURIComponent(escape(atob(texto)));
+    const data = JSON.parse(json);
+    if (!Array.isArray(data)) throw new Error();
+    if (productos.length > 0) {
+      const opcion = confirm('Ya tenés ' + productos.length + ' producto(s) guardado(s).
+
+✅ Aceptar = REEMPLAZAR todo con los importados
+❌ Cancelar = AGREGAR los importados a los que ya tenés');
+      if (opcion) {
+        productos = data;
+      } else {
+        const idsExistentes = new Set(productos.map(p => p.id));
+        data.forEach(p => { if (!idsExistentes.has(p.id)) productos.unshift(p); });
+      }
+    } else {
+      productos = data;
+    }
+    guardar();
+    actualizarBadge();
+    renderLista();
+    document.getElementById('modal-importar').style.display = 'none';
+    document.getElementById('import-textarea').value = '';
+    alert('✅ ' + data.length + ' producto(s) importado(s) correctamente.');
+  } catch(e) {
+    alert('❌ El texto no es válido. Asegurate de copiar exactamente lo que exportaste.');
+  }
+}
+
+// ═══════════════════════════════════════════
 //  TECLADO
 // ═══════════════════════════════════════════
 document.addEventListener('keydown', e => {
@@ -934,6 +1010,57 @@ document.addEventListener('keydown', e => {
 //  INIT
 // ═══════════════════════════════════════════
 actualizarBadge();
+// cargarDesdeFirebase se define en el módulo Firebase abajo
+window.cargarDesdeFirebase = function() {};
+</script>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDEfm8gwvUJ6K0SM7PciAAK0KPf35AdbI0",
+    authDomain: "analizador-ml.firebaseapp.com",
+    projectId: "analizador-ml",
+    storageBucket: "analizador-ml.firebasestorage.app",
+    messagingSenderId: "1079547603597",
+    appId: "1:1079547603597:web:4aea410c162ee7f474d0c4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.db = getFirestore(app);
+  window.doc = doc;
+  window.setDoc = setDoc;
+  window.getDoc = getDoc;
+
+  // Cargar productos desde Firebase al iniciar
+  window.cargarDesdeFirebase = async function() {
+    try {
+      const snap = await getDoc(doc(window.db, 'datos', 'productos'));
+      if (snap.exists()) {
+        const data = snap.data().lista;
+        if (data && data.length) {
+          productos = data;
+          localStorage.setItem('ml_productos', JSON.stringify(productos));
+          actualizarBadge();
+          // Si estamos en la pestaña lista, refrescarla
+          if (document.getElementById('panel-lista').classList.contains('active')) {
+            renderLista();
+          }
+        }
+      }
+    } catch(e) { console.warn('Firebase read error:', e); }
+  };
+
+  // Sobreescribir guardar para usar Firebase
+  const _guardarOriginal = window.guardar;
+  window.guardar = async function() {
+    localStorage.setItem('ml_productos', JSON.stringify(productos));
+    try {
+      await setDoc(doc(window.db, 'datos', 'productos'), { lista: productos });
+    } catch(e) { console.warn('Firebase write error:', e); }
+  };
 </script>
 </body>
 </html>
