@@ -304,6 +304,14 @@ body::before {
           </div>
           <div class="helper">Neto acreditado en Mercado Pago después de descontar todo</div>
         </div>
+        <div class="field full">
+          <label>Precio mayorista (opcional)</label>
+          <div class="field-input orange">
+            <span class="signo">$</span>
+            <input type="number" id="mayorista" placeholder="0 (opcional)" min="0" step="100">
+          </div>
+          <div class="helper">Lo que pagás al mayorista — se compara contra lo que te queda de ML</div>
+        </div>
       </div>
     </div>
 
@@ -487,10 +495,11 @@ function switchInner(panel, btn) {
 //  CALCULAR Y GUARDAR
 // ═══════════════════════════════════════════
 function calcular() {
-  const nombre = document.getElementById('nombre').value.trim();
-  const precio = parseFloat(document.getElementById('precio').value) || 0;
-  const neto   = parseFloat(document.getElementById('neto').value) || 0;
-  const costo  = parseFloat(document.getElementById('costo').value) || 0;
+  const nombre    = document.getElementById('nombre').value.trim();
+  const precio    = parseFloat(document.getElementById('precio').value) || 0;
+  const neto      = parseFloat(document.getElementById('neto').value) || 0;
+  const costo     = parseFloat(document.getElementById('costo').value) || 0;
+  const mayPrecio = parseFloat(document.getElementById('mayorista').value) || 0;
 
   if (!nombre) { document.getElementById('nombre').focus(); return; }
   if (!precio || !neto) { alert('Completá el precio de venta y lo que te queda de ML.'); return; }
@@ -526,10 +535,19 @@ function calcular() {
   document.getElementById('desglose-card').className = 'desglose-card visible';
   document.getElementById('inner-tabs').style.display = 'flex';
 
-  // Reset mayorista result cuando se calcula nuevo producto
+  // Calcular estado mayorista
+  let mayData = null;
+  if (mayPrecio > 0) {
+    const mayDiff   = neto - mayPrecio;
+    const mayMargen = mayPrecio > 0 ? ((mayDiff / mayPrecio) * 100).toFixed(1) : '0.0';
+    const mayEstado = mayDiff > 0 ? 'arriba' : mayDiff < 0 ? 'abajo' : 'igual';
+    mayData = { id: 1, precio: mayPrecio, diff: mayDiff, margenPct: mayMargen, estado: mayEstado };
+  }
+
+  // Reset mayorista panel
   document.getElementById('may-result').className = 'may-result';
   document.getElementById('may-precio').value = '';
-  mayoristas = [];
+  mayoristas = mayData ? [mayData] : [];
   renderMayoristas();
 
   // Guardar
@@ -537,7 +555,7 @@ function calcular() {
     id: editandoId || uid(),
     nombre, precio, neto, costo, descuentoML, ganancia, pctML,
     competidores: [...competidores],
-    mayoristas: [],
+    mayoristas: mayData ? [mayData] : [],
     fecha: new Date().toLocaleDateString('es-AR')
   };
 
@@ -554,10 +572,11 @@ function calcular() {
   actualizarCompSummary();
 
   // Limpiar form
-  document.getElementById('nombre').value = '';
-  document.getElementById('precio').value = '';
-  document.getElementById('neto').value   = '';
-  document.getElementById('costo').value  = '';
+  document.getElementById('nombre').value    = '';
+  document.getElementById('precio').value    = '';
+  document.getElementById('neto').value      = '';
+  document.getElementById('costo').value     = '';
+  document.getElementById('mayorista').value = '';
   document.getElementById('nombre').focus();
 }
 
@@ -644,8 +663,8 @@ function renderMayoristas() {
         <div class="mi-precio">Precio: ${fmt(m.precio)} · Neto ML: ${fmt(miNeto)}</div>
       </div>
       <div class="mi-estado" style="color:var(--${cls === 'pos' ? 'green' : cls === 'neg' ? 'red' : 'orange'})">
-        ${emoji} ${signo}${fmt(m.diff)}
-        <span class="ms-monto">${signo}${m.margenPct}% margen</span>
+        ${emoji} ${signo}${m.margenPct}% sobre el mayorista
+        <span class="ms-monto">(neto ${fmt(miNeto)} vs mayorista ${fmt(m.precio)})</span>
       </div>
       <button class="mi-del" onclick="eliminarMay(${m.id})">✕</button>
     `;
@@ -762,10 +781,10 @@ function renderLista() {
       const memoji = m.estado === 'arriba' ? '✅' : m.estado === 'abajo' ? '🚨' : '⚠️';
       const mtxt   = m.estado === 'arriba' ? 'Arriba del mayorista' : m.estado === 'abajo' ? 'Abajo del mayorista' : 'Al precio mayorista';
       const msigno = m.diff >= 0 ? '+' : '';
-      mayHeaderBadge = `<span style="font-size:11px;font-weight:700;color:${mcolor}">${memoji} ${mtxt} (${msigno}${fmt(m.diff)})</span>`;
+      mayHeaderBadge = `<span style="font-size:11px;font-weight:700;color:${mcolor}">${memoji} ${mtxt} (${msigno}${m.margenPct}%)</span>`;
       mayBadge = `<div class="pcb-item">
         <div class="pcbi-lbl">vs Mayorista (${fmt(m.precio)})</div>
-        <div class="pcbi-val ${mcls}">${memoji} ${msigno}${fmt(m.diff)} (${msigno}${m.margenPct}%)</div>
+        <div class="pcbi-val ${mcls}">${memoji} ${msigno}${m.margenPct}% sobre el mayorista</div>
       </div>`;
     }
 
@@ -837,10 +856,11 @@ function editarProducto(id) {
   const prod = productos.find(p => p.id === id);
   if (!prod) return;
   editandoId = id;
-  document.getElementById('nombre').value = prod.nombre;
-  document.getElementById('precio').value = prod.precio;
-  document.getElementById('neto').value   = prod.neto;
-  document.getElementById('costo').value  = prod.costo;
+  document.getElementById('nombre').value    = prod.nombre;
+  document.getElementById('precio').value    = prod.precio;
+  document.getElementById('neto').value      = prod.neto;
+  document.getElementById('costo').value     = prod.costo;
+  document.getElementById('mayorista').value = (prod.mayoristas && prod.mayoristas.length) ? prod.mayoristas[0].precio : '';
   competidores = [...(prod.competidores || [])];
   mayoristas   = [...(prod.mayoristas   || [])];
   miPrecio = prod.precio;
