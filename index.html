@@ -233,6 +233,14 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
           <div class="field-input orange"><span class="signo">$</span><input type="number" id="mayorista" placeholder="0 (opcional)" min="0" step="100"></div>
           <div class="helper">Lo que pagás al mayorista — se compara contra lo que te queda de ML</div>
         </div>
+        <div class="field full" id="envio-field" style="display:none">
+          <label>⚠️ Costo de envío (productos +$33.000)</label>
+          <div class="field-input" style="background:rgba(255,71,87,0.08);border-color:var(--red)">
+            <span class="signo" style="color:var(--red)">-$</span>
+            <input type="text" id="envio-display" value="7.230" disabled style="color:var(--red);font-size:20px">
+          </div>
+          <div class="helper" style="color:var(--red)">Este costo se descuenta automáticamente de tu ganancia al vender sobre $33.000</div>
+        </div>
       </div>
     </div>
     <button class="btn-primary" onclick="calcular()">CALCULAR Y GUARDAR →</button>
@@ -258,6 +266,7 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
         <div class="d-row"><span class="dl">ML se llevó</span><span class="dv neg" id="d-ml">-$0</span></div>
         <div class="d-row"><span class="dl">% de descuento ML</span><span class="dv neu" id="d-pct">0%</span></div>
         <div class="d-row"><span class="dl">Mi costo</span><span class="dv neg" id="d-costo">-$0</span></div>
+        <div class="d-row" id="d-envio-row" style="display:none"><span class="dl">📦 Costo envío (+$33.000)</span><span class="dv neg" id="d-envio">-$7.230</span></div>
         <div class="d-row"><span class="dl">💰 Ganancia final</span><span class="dv" id="d-ganancia">$0</span></div>
       </div>
     </div>
@@ -447,7 +456,8 @@ function calcular() {
   miNeto   = neto;
 
   const descuentoML = precio - neto;
-  const ganancia    = neto - costo;
+  const costoEnvio  = precio > 33000 ? 7230 : 0;
+  const ganancia    = neto - costo - costoEnvio;
   const pctML       = pct(descuentoML, precio);
   const pctGan      = pct(Math.abs(ganancia), precio);
   const signo       = ganancia >= 0 ? '+' : '-';
@@ -466,6 +476,13 @@ function calcular() {
   document.getElementById('d-ml').textContent     = '-' + fmt(descuentoML);
   document.getElementById('d-pct').textContent    = pctML + ' del precio';
   document.getElementById('d-costo').textContent  = '-' + fmt(costo);
+  const envioRow = document.getElementById('d-envio-row');
+  if (costoEnvio > 0) {
+    envioRow.style.display = 'flex';
+    document.getElementById('d-envio').textContent = '-' + fmt(costoEnvio);
+  } else {
+    envioRow.style.display = 'none';
+  }
   const dG = document.getElementById('d-ganancia');
   dG.textContent = fmt(ganancia);
   dG.className   = 'dv ' + cls;
@@ -487,7 +504,7 @@ function calcular() {
 
   const prod = {
     id: editandoId || uid(),
-    nombre, precio, neto, costo, descuentoML, ganancia, pctML,
+    nombre, precio, neto, costo, costoEnvio, descuentoML, ganancia, pctML,
     competidores: [...competidores],
     mayoristas: mayData ? [mayData] : [],
     fecha: new Date().toLocaleDateString('es-AR')
@@ -709,6 +726,7 @@ function renderLista() {
           '<div class="pcb-item"><div class="pcbi-lbl">ML se llevó</div><div class="pcbi-val neg">-'+fmt(p.descuentoML)+' ('+p.pctML+')</div></div>'+
           '<div class="pcb-item"><div class="pcbi-lbl">Mi costo</div><div class="pcbi-val neg">-'+fmt(p.costo)+'</div></div>'+
           '<div class="pcb-item"><div class="pcbi-lbl">Ganancia</div><div class="pcbi-val '+cls+'">'+fmt(p.ganancia)+' ('+signo+pctGan+')</div></div>'+
+          (p.costoEnvio > 0 ? '<div class="pcb-item"><div class="pcbi-lbl">📦 Costo envío</div><div class="pcbi-val neg">-'+fmt(p.costoEnvio)+'</div></div>' : '')+
           '<div class="pcb-item"><div class="pcbi-lbl">Fecha</div><div class="pcbi-val neu" style="font-size:13px">'+p.fecha+'</div></div>'+
           mayBadge+
         '</div>'+
@@ -741,6 +759,7 @@ function editarProducto(id) {
   editandoId = id;
   document.getElementById('nombre').value    = prod.nombre;
   document.getElementById('precio').value    = prod.precio;
+  document.getElementById('envio-field').style.display = prod.precio > 33000 ? 'flex' : 'none';
   document.getElementById('neto').value      = prod.neto;
   document.getElementById('costo').value     = prod.costo;
   document.getElementById('mayorista').value = (prod.mayoristas && prod.mayoristas.length) ? prod.mayoristas[0].precio : '';
@@ -762,6 +781,12 @@ function limpiarTodo() {
   actualizarBadge();
   renderLista();
 }
+
+// ═══ ENVIO AUTOMATICO ═══
+document.getElementById('precio').addEventListener('input', function() {
+  const precio = parseFloat(this.value) || 0;
+  document.getElementById('envio-field').style.display = precio > 33000 ? 'flex' : 'none';
+});
 
 // ═══ TECLADO ═══
 document.addEventListener('keydown', e => {
