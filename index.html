@@ -788,6 +788,21 @@ function renderLista() {
       </div>`;
     }
 
+    // Competencia: badge visible en header
+    let compHeaderBadge = '';
+    if (p.competidores && p.competidores.length) {
+      const precios  = p.competidores.map(c => c.precio);
+      const minComp  = Math.min(...precios);
+      const minNombre = p.competidores.find(c => c.precio === minComp).nombre;
+      const diff     = p.precio - minComp;
+      const diffPct  = Math.abs(diff / minComp * 100).toFixed(1);
+      let ccolor, cemoji, ctxt;
+      if (diff > 50)       { ccolor='var(--red)';    cemoji='📈'; ctxt=`+${diffPct}% vs mejor precio (${minNombre})`; }
+      else if (diff < -50) { ccolor='var(--green)';  cemoji='📉'; ctxt=`-${diffPct}% vs mejor precio (${minNombre})`; }
+      else                 { ccolor='var(--muted2)'; cemoji='≈';  ctxt=`igual al mejor precio (${minNombre})`; }
+      compHeaderBadge = `<span style="font-size:11px;font-weight:700;color:${ccolor}">${cemoji} ${ctxt}</span>`;
+    }
+
     const card = document.createElement('div');
     card.className = 'prod-card';
     card.id = 'pc-' + p.id;
@@ -796,7 +811,8 @@ function renderLista() {
         <span class="pc-num">#${productos.length - i}</span>
         <div style="flex:1;min-width:0;overflow:hidden">
           <div class="pc-name">${p.nombre}</div>
-          ${mayHeaderBadge ? `<div style="margin-top:2px">${mayHeaderBadge}</div>` : ''}
+          ${mayHeaderBadge  ? `<div style="margin-top:2px">${mayHeaderBadge}</div>`  : ''}
+          ${compHeaderBadge ? `<div style="margin-top:2px">${compHeaderBadge}</div>` : ''}
         </div>
         <span class="pc-gan ${cls}">${fmt(p.ganancia)}</span>
         <span class="pc-arrow">▼</span>
