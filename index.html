@@ -262,11 +262,12 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
       <div class="desglose-card" id="desglose-card">
         <div class="d-header">Desglose detallado</div>
         <div class="d-row"><span class="dl">Precio de venta</span><span class="dv pos" id="d-precio">$0</span></div>
-        <div class="d-row"><span class="dl">Neto acreditado por ML</span><span class="dv pos" id="d-neto">$0</span></div>
-        <div class="d-row"><span class="dl">ML se llevó</span><span class="dv neg" id="d-ml">-$0</span></div>
-        <div class="d-row"><span class="dl">% de descuento ML</span><span class="dv neu" id="d-pct">0%</span></div>
+        <div class="d-row"><span class="dl">Neto bruto ML</span><span class="dv pos" id="d-neto">$0</span></div>
+        <div class="d-row" id="d-envio-row" style="display:none"><span class="dl">📦 Costo envío (desc. del neto)</span><span class="dv neg" id="d-envio">-$7.230</span></div>
+        <div class="d-row" style="display:none"><span class="dl">Neto real (después del envío)</span><span class="dv pos" id="d-neto-real">$0</span></div>
+        <div class="d-row"><span class="dl">ML + envío se llevaron</span><span class="dv neg" id="d-ml">-$0</span></div>
+        <div class="d-row"><span class="dl">% total de descuento</span><span class="dv neu" id="d-pct">0%</span></div>
         <div class="d-row"><span class="dl">Mi costo</span><span class="dv neg" id="d-costo">-$0</span></div>
-        <div class="d-row" id="d-envio-row" style="display:none"><span class="dl">📦 Costo envío (+$33.000)</span><span class="dv neg" id="d-envio">-$7.230</span></div>
         <div class="d-row"><span class="dl">💰 Ganancia final</span><span class="dv" id="d-ganancia">$0</span></div>
       </div>
     </div>
@@ -453,11 +454,12 @@ function calcular() {
   if (!precio || !neto) { alert('Completá el precio de venta y lo que te queda de ML.'); return; }
 
   miPrecio = precio;
-  miNeto   = neto;
+  miNeto   = netoReal;
 
-  const descuentoML = precio - neto;
   const costoEnvio  = precio > 33000 ? 7230 : 0;
-  const ganancia    = neto - costo - costoEnvio;
+  const netoReal    = neto - costoEnvio;
+  const descuentoML = precio - netoReal;
+  const ganancia    = netoReal - costo;
   const pctML       = pct(descuentoML, precio);
   const pctGan      = pct(Math.abs(ganancia), precio);
   const signo       = ganancia >= 0 ? '+' : '-';
@@ -472,7 +474,7 @@ function calcular() {
   document.getElementById('r-sub').textContent = signo + pctGan + ' sobre el precio de venta';
 
   document.getElementById('d-precio').textContent = fmt(precio);
-  document.getElementById('d-neto').textContent   = fmt(neto);
+  document.getElementById('d-neto').textContent   = fmt(netoReal);
   document.getElementById('d-ml').textContent     = '-' + fmt(descuentoML);
   document.getElementById('d-pct').textContent    = pctML + ' del precio';
   document.getElementById('d-costo').textContent  = '-' + fmt(costo);
@@ -480,8 +482,11 @@ function calcular() {
   if (costoEnvio > 0) {
     envioRow.style.display = 'flex';
     document.getElementById('d-envio').textContent = '-' + fmt(costoEnvio);
+    document.getElementById('d-neto-real').textContent = fmt(netoReal);
+    document.getElementById('d-neto-real').parentElement.style.display = 'flex';
   } else {
     envioRow.style.display = 'none';
+    document.getElementById('d-neto-real').parentElement.style.display = 'none';
   }
   const dG = document.getElementById('d-ganancia');
   dG.textContent = fmt(ganancia);
@@ -504,7 +509,7 @@ function calcular() {
 
   const prod = {
     id: editandoId || uid(),
-    nombre, precio, neto, costo, costoEnvio, descuentoML, ganancia, pctML,
+    nombre, precio, neto, netoReal, costo, costoEnvio, descuentoML, ganancia, pctML,
     competidores: [...competidores],
     mayoristas: mayData ? [mayData] : [],
     fecha: new Date().toLocaleDateString('es-AR')
@@ -722,7 +727,7 @@ function renderLista() {
       '<div class="prod-card-body">'+
         '<div class="pcb-grid">'+
           '<div class="pcb-item"><div class="pcbi-lbl">Precio venta</div><div class="pcbi-val">'+fmt(p.precio)+'</div></div>'+
-          '<div class="pcb-item"><div class="pcbi-lbl">Neto ML</div><div class="pcbi-val pos">'+fmt(p.neto)+'</div></div>'+
+          '<div class="pcb-item"><div class="pcbi-lbl">Neto real</div><div class="pcbi-val pos">'+fmt(p.netoReal !== undefined ? p.netoReal : p.neto)+'</div></div>'+
           '<div class="pcb-item"><div class="pcbi-lbl">ML se llevó</div><div class="pcbi-val neg">-'+fmt(p.descuentoML)+' ('+p.pctML+')</div></div>'+
           '<div class="pcb-item"><div class="pcbi-lbl">Mi costo</div><div class="pcbi-val neg">-'+fmt(p.costo)+'</div></div>'+
           '<div class="pcb-item"><div class="pcbi-lbl">Ganancia</div><div class="pcbi-val '+cls+'">'+fmt(p.ganancia)+' ('+signo+pctGan+')</div></div>'+
