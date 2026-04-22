@@ -15,6 +15,7 @@
   --accent2: #3483FA;
   --green: #00D47E;
   --red: #FF4757;
+  --orange: #FF9F43;
   --text: #F0F0F5;
   --muted: #6B6B80;
   --muted2: #9090A8;
@@ -42,11 +43,11 @@ body::before {
 .header-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
 .ml-chip { background: var(--accent); color: #000; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 5px 10px; border-radius: 4px; white-space: nowrap; }
 
-/* MAIN TABS (Agregar / Lista) */
+/* MAIN TABS */
 .main-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 18px; }
-.main-tab { flex: 1; background: transparent; border: none; border-radius: 8px; padding: 11px 14px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; position: relative; }
+.main-tab { flex: 1; background: transparent; border: none; border-radius: 8px; padding: 10px 8px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; position: relative; }
 .main-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-.main-tab .badge { position: absolute; top: 6px; right: 10px; background: var(--accent); color: #000; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center; }
+.main-tab .badge { position: absolute; top: 5px; right: 7px; background: var(--accent); color: #000; font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center; }
 
 .main-panel { display: none; }
 .main-panel.active { display: block; animation: fadeIn 0.2s ease; }
@@ -64,6 +65,7 @@ body::before {
 .field-input:focus-within { border-color: var(--accent2); }
 .field-input.accent:focus-within { border-color: var(--accent); }
 .field-input.green:focus-within { border-color: var(--green); }
+.field-input.orange:focus-within { border-color: var(--orange); }
 .field-input span.signo { font-family: 'Syne', sans-serif; font-size: 16px; color: var(--muted); flex-shrink: 0; }
 .field-input input[type=text] { flex: 1; background: transparent; border: none; outline: none; font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); padding: 13px 0; min-width: 0; }
 .field-input input[type=number] { flex: 1; background: transparent; border: none; outline: none; font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); padding: 12px 0; min-width: 0; }
@@ -77,9 +79,9 @@ body::before {
 .btn-primary:hover { opacity: 0.9; }
 .btn-primary:active { transform: scale(0.98); }
 
-/* INNER TABS (Desglose/Comp) */
+/* INNER TABS */
 .inner-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 12px; }
-.inner-tab { flex: 1; background: transparent; border: none; border-radius: 6px; padding: 9px 10px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+.inner-tab { flex: 1; background: transparent; border: none; border-radius: 6px; padding: 9px 6px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; }
 .inner-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 .inner-panel { display: none; }
 .inner-panel.active { display: block; animation: fadeIn 0.2s ease; }
@@ -118,11 +120,9 @@ body::before {
 .cs-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: var(--muted2); }
 .cs-row span:last-child { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text); }
 .cs-row.hl span:last-child { color: var(--accent); }
-
 .comp-list { display: flex; flex-direction: column; gap: 8px; }
 .comp-empty { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 13px; }
 .comp-empty .icon { font-size: 28px; margin-bottom: 8px; }
-
 .comp-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.2s ease; }
 .ci-rank { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 800; color: var(--muted); width: 18px; flex-shrink: 0; }
 .ci-rank.top { color: var(--accent); }
@@ -135,7 +135,6 @@ body::before {
 .ci-price { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; flex-shrink: 0; }
 .ci-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0; transition: color 0.2s; }
 .ci-del:hover { color: var(--red); }
-
 .add-comp-row { display: flex; gap: 8px; margin-top: 10px; }
 .add-comp-name { flex: 2; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 13px; font-family: 'Instrument Sans', sans-serif; font-size: 13px; color: var(--text); outline: none; transition: border-color 0.2s; }
 .add-comp-name:focus { border-color: var(--accent2); }
@@ -148,17 +147,72 @@ body::before {
 .btn-add { background: var(--accent2); color: #fff; border: none; border-radius: 10px; padding: 0 14px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; }
 .btn-add:hover { opacity: 0.85; }
 
-/* ═══════════════════════════════════ LISTA ═══════════════════════════════════ */
+/* ─── MAYORISTA ─── */
+.may-empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 13px; }
+.may-empty .icon { font-size: 28px; margin-bottom: 8px; }
+
+.may-input-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+.may-input-row .field { flex: 1; }
+.btn-may { background: var(--orange); color: #000; border: none; border-radius: 10px; padding: 0 16px; height: 50px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: opacity 0.2s; flex-shrink: 0; }
+.btn-may:hover { opacity: 0.85; }
+
+.may-result {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: none;
+  margin-bottom: 12px;
+}
+.may-result.visible { display: block; animation: fadeIn 0.3s ease; }
+
+.may-veredicto {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.may-veredicto .mv-icon { font-size: 32px; margin-bottom: 8px; }
+.may-veredicto .mv-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.may-veredicto .mv-sub { font-size: 12px; color: var(--muted); }
+.may-veredicto.arriba { border-top: 3px solid var(--green); }
+.may-veredicto.abajo  { border-top: 3px solid var(--red); }
+.may-veredicto.igual  { border-top: 3px solid var(--orange); }
+.mv-title.arriba { color: var(--green); }
+.mv-title.abajo  { color: var(--red); }
+.mv-title.igual  { color: var(--orange); }
+
+.may-rows { padding: 4px 0; }
+.may-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+.may-row:last-child { border-bottom: none; }
+.may-row .mr-l { color: var(--muted2); }
+.may-row .mr-v { font-family: 'Syne', sans-serif; font-weight: 700; }
+.mr-v.pos { color: var(--green); }
+.mr-v.neg { color: var(--red); }
+.mr-v.ora { color: var(--orange); }
+
+.may-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.may-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.2s ease; }
+.mi-info { flex: 1; min-width: 0; }
+.mi-nombre { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.mi-precio { font-size: 11px; color: var(--muted2); }
+.mi-estado { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800; flex-shrink: 0; text-align: right; }
+.mi-estado .ms-monto { font-size: 10px; display: block; margin-top: 1px; font-weight: 600; opacity: 0.8; }
+.mi-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0; transition: color 0.2s; }
+.mi-del:hover { color: var(--red); }
+
+/* ─── LISTA ─── */
 .lista-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .lista-header h2 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; }
 .btn-clear { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; }
 .btn-clear:hover { border-color: var(--red); color: var(--red); }
-
 .lista-empty { text-align: center; padding: 50px 20px; color: var(--muted); }
 .lista-empty .icon { font-size: 36px; margin-bottom: 12px; opacity: 0.5; }
 .lista-empty p { font-size: 14px; line-height: 1.6; }
-
-/* Resumen totales */
 .lista-resumen { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; display: none; }
 .lista-resumen.visible { display: block; animation: fadeIn 0.2s ease; }
 .lr-title { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
@@ -168,75 +222,26 @@ body::before {
 .lr-item .lr-val.pos { color: var(--green); }
 .lr-item .lr-val.neg { color: var(--red); }
 .lr-item .lr-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 1px; }
-
-/* Tarjetas de producto en lista */
-.prod-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 10px;
-  animation: fadeIn 0.25s ease;
-  transition: border-color 0.2s;
-}
+.prod-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 10px; animation: fadeIn 0.25s ease; transition: border-color 0.2s; }
 .prod-card:hover { border-color: var(--accent2); }
-.prod-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  cursor: pointer;
-  user-select: none;
-}
-.prod-card-header .pc-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--muted);
-  flex-shrink: 0;
-  width: 22px;
-}
-.prod-card-header .pc-name {
-  flex: 1;
-  font-family: 'Syne', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.prod-card-header .pc-gan {
-  font-family: 'Syne', sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-  flex-shrink: 0;
-}
+.prod-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
+.prod-card-header .pc-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--muted); flex-shrink: 0; width: 22px; }
+.prod-card-header .pc-name { flex: 1; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-card-header .pc-gan { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; flex-shrink: 0; }
 .pc-gan.pos { color: var(--green); }
 .pc-gan.neg { color: var(--red); }
 .pc-gan.neu { color: var(--muted2); }
-.prod-card-header .pc-arrow {
-  color: var(--muted);
-  font-size: 12px;
-  flex-shrink: 0;
-  transition: transform 0.2s;
-}
+.prod-card-header .pc-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; transition: transform 0.2s; }
 .prod-card.open .pc-arrow { transform: rotate(180deg); }
-
-.prod-card-body {
-  display: none;
-  border-top: 1px solid var(--border);
-  padding: 14px 18px;
-  background: var(--surface2);
-}
+.prod-card-body { display: none; border-top: 1px solid var(--border); padding: 14px 18px; background: var(--surface2); }
 .prod-card.open .prod-card-body { display: block; animation: fadeIn 0.2s ease; }
-
 .pcb-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; margin-bottom: 12px; }
 .pcb-item .pcbi-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
 .pcb-item .pcbi-val { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
 .pcbi-val.pos { color: var(--green); }
 .pcbi-val.neg { color: var(--red); }
 .pcbi-val.neu { color: var(--muted2); }
-
+.pcbi-val.ora { color: var(--orange); }
 .pcb-actions { display: flex; gap: 8px; }
 .btn-edit { flex: 1; background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--muted2); cursor: pointer; transition: all 0.2s; }
 .btn-edit:hover { border-color: var(--accent2); color: var(--accent2); }
@@ -258,14 +263,13 @@ body::before {
 
   <!-- Main tabs -->
   <div class="main-tabs">
-    <button class="main-tab active" onclick="switchMain('agregar', this)">➕ Agregar producto</button>
-    <button class="main-tab" id="tab-lista-btn" onclick="switchMain('lista', this)">📋 Mis productos <span class="badge" id="badge-count">0</span></button>
+    <button class="main-tab active" onclick="switchMain('agregar', this)">➕ Agregar</button>
+    <button class="main-tab" onclick="switchMain('lista', this)">📋 Productos <span class="badge" id="badge-count">0</span></button>
   </div>
 
-  <!-- ═══════════════ PANEL AGREGAR ═══════════════ -->
+  <!-- ═══════════ PANEL AGREGAR ═══════════ -->
   <div class="main-panel active" id="panel-agregar">
 
-    <!-- Nombre -->
     <div class="card">
       <div class="section-label">Producto</div>
       <div class="field">
@@ -275,7 +279,6 @@ body::before {
       </div>
     </div>
 
-    <!-- Números -->
     <div class="card">
       <div class="section-label">Mis números</div>
       <div class="inputs-grid">
@@ -294,19 +297,19 @@ body::before {
           </div>
         </div>
         <div class="field full">
-          <label>Lo que me queda de ML (ya descontado todo)</label>
+          <label>Lo que me queda de ML (después de comisiones y retenciones)</label>
           <div class="field-input green">
             <span class="signo">$</span>
             <input type="number" id="neto" placeholder="0" min="0" step="100">
           </div>
-          <div class="helper">Neto acreditado en Mercado Pago después de comisiones y retenciones</div>
+          <div class="helper">Neto acreditado en Mercado Pago después de descontar todo</div>
         </div>
       </div>
     </div>
 
     <button class="btn-primary" onclick="calcular()">CALCULAR Y GUARDAR →</button>
 
-    <!-- Resultado -->
+    <!-- Resultado hero -->
     <div class="result-hero" id="result-hero">
       <div class="r-name" id="r-name"></div>
       <div class="r-label">Tu ganancia final</div>
@@ -317,6 +320,7 @@ body::before {
     <!-- Inner tabs -->
     <div class="inner-tabs" id="inner-tabs" style="display:none">
       <button class="inner-tab active" onclick="switchInner('desglose', this)">📊 Desglose</button>
+      <button class="inner-tab" onclick="switchInner('mayorista', this)">🏭 Mayorista</button>
       <button class="inner-tab" onclick="switchInner('competencia', this)">⚔️ Competencia</button>
     </div>
 
@@ -331,6 +335,47 @@ body::before {
         <div class="d-row"><span class="dl">Mi costo</span><span class="dv neg" id="d-costo">-$0</span></div>
         <div class="d-row"><span class="dl">💰 Ganancia final</span><span class="dv" id="d-ganancia">$0</span></div>
       </div>
+    </div>
+
+    <!-- Inner: Mayorista -->
+    <div class="inner-panel" id="inner-mayorista">
+
+      <div class="card" style="margin-bottom:12px">
+        <div class="section-label">Precio Mayorista</div>
+        <div class="may-input-row">
+          <div class="field">
+            <label>Precio mayorista del producto</label>
+            <div class="field-input orange">
+              <span class="signo">$</span>
+              <input type="number" id="may-precio" placeholder="0" min="0" step="100">
+            </div>
+            <div class="helper">Lo que pagás al mayorista por esta unidad</div>
+          </div>
+          <button class="btn-may" onclick="calcularMayorista()">COMPARAR</button>
+        </div>
+      </div>
+
+      <!-- Resultado mayorista -->
+      <div class="may-result" id="may-result">
+        <div class="may-veredicto" id="may-veredicto">
+          <div class="mv-icon" id="mv-icon">📦</div>
+          <div class="mv-title" id="mv-title">—</div>
+          <div class="mv-sub" id="mv-sub"></div>
+        </div>
+        <div class="may-rows">
+          <div class="may-row"><span class="mr-l">Precio mayorista</span><span class="mr-v ora" id="mv-precio-may">$0</span></div>
+          <div class="may-row"><span class="mr-l">Neto que recibís de ML</span><span class="mr-v pos" id="mv-neto">$0</span></div>
+          <div class="may-row"><span class="mr-l">Diferencia (neto - mayorista)</span><span class="mr-v" id="mv-diff">$0</span></div>
+          <div class="may-row"><span class="mr-l">Margen sobre mayorista</span><span class="mr-v" id="mv-margen">0%</span></div>
+        </div>
+      </div>
+
+      <!-- Lista de mayoristas guardados -->
+      <div id="may-list-wrap" style="display:none">
+        <div class="section-label" style="margin-top:8px">Mayoristas guardados para este producto</div>
+        <div class="may-list" id="may-list"></div>
+      </div>
+
     </div>
 
     <!-- Inner: Competencia -->
@@ -359,15 +404,12 @@ body::before {
 
   </div><!-- /panel-agregar -->
 
-  <!-- ═══════════════ PANEL LISTA ═══════════════ -->
+  <!-- ═══════════ PANEL LISTA ═══════════ -->
   <div class="main-panel" id="panel-lista">
-
     <div class="lista-header">
       <h2>Mis productos</h2>
       <button class="btn-clear" onclick="limpiarTodo()">🗑 Limpiar todo</button>
     </div>
-
-    <!-- Resumen totales -->
     <div class="lista-resumen" id="lista-resumen">
       <div class="lr-title">Resumen general</div>
       <div class="lr-grid">
@@ -385,15 +427,13 @@ body::before {
         </div>
       </div>
     </div>
-
     <div id="lista-container">
       <div class="lista-empty" id="lista-empty">
         <div class="icon">📦</div>
-        <p>Todavía no agregaste productos.<br>Usá la solapa "Agregar producto" para empezar.</p>
+        <p>Todavía no agregaste productos.<br>Usá la solapa "Agregar" para empezar.</p>
       </div>
     </div>
-
-  </div><!-- /panel-lista -->
+  </div>
 
 </div><!-- /wrap -->
 
@@ -401,11 +441,14 @@ body::before {
 // ═══════════════════════════════════════════
 //  ESTADO
 // ═══════════════════════════════════════════
-let productos = JSON.parse(localStorage.getItem('ml_productos') || '[]');
+let productos   = JSON.parse(localStorage.getItem('ml_productos') || '[]');
 let competidores = [];
-let miPrecio = 0;
-let compId = 1;
-let editandoId = null;
+let mayoristas   = [];
+let miPrecio     = 0;
+let miNeto       = 0;
+let compId       = 1;
+let mayId        = 1;
+let editandoId   = null;
 
 // ═══════════════════════════════════════════
 //  HELPERS
@@ -420,15 +463,11 @@ function pct(part, total) {
   if (!total) return '0%';
   return (part / total * 100).toFixed(1) + '%';
 }
-function uid() {
-  return Date.now() + Math.random().toString(36).slice(2);
-}
-function guardar() {
-  localStorage.setItem('ml_productos', JSON.stringify(productos));
-}
+function uid() { return Date.now() + Math.random().toString(36).slice(2); }
+function guardar() { localStorage.setItem('ml_productos', JSON.stringify(productos)); }
 
 // ═══════════════════════════════════════════
-//  NAVEGACIÓN TABS
+//  NAVEGACIÓN
 // ═══════════════════════════════════════════
 function switchMain(panel, btn) {
   document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
@@ -457,6 +496,8 @@ function calcular() {
   if (!precio || !neto) { alert('Completá el precio de venta y lo que te queda de ML.'); return; }
 
   miPrecio = precio;
+  miNeto   = neto;
+
   const descuentoML = precio - neto;
   const ganancia    = neto - costo;
   const pctML       = pct(descuentoML, precio);
@@ -467,26 +508,38 @@ function calcular() {
   // Hero
   const hero = document.getElementById('result-hero');
   hero.className = 'result-hero visible ' + (ganancia > 0 ? 'pos' : ganancia < 0 ? 'neg' : '');
-  document.getElementById('r-name').textContent   = nombre.toUpperCase();
+  document.getElementById('r-name').textContent = nombre.toUpperCase();
   const rAmt = document.getElementById('r-amount');
   rAmt.textContent = fmt(ganancia);
   rAmt.className   = 'r-amount ' + cls;
   document.getElementById('r-sub').textContent = signo + pctGan + ' sobre el precio de venta';
 
   // Desglose
-  document.getElementById('d-precio').textContent  = fmt(precio);
-  document.getElementById('d-neto').textContent    = fmt(neto);
-  document.getElementById('d-ml').textContent      = '-' + fmt(descuentoML);
-  document.getElementById('d-pct').textContent     = pctML + ' del precio';
-  document.getElementById('d-costo').textContent   = '-' + fmt(costo);
+  document.getElementById('d-precio').textContent = fmt(precio);
+  document.getElementById('d-neto').textContent   = fmt(neto);
+  document.getElementById('d-ml').textContent     = '-' + fmt(descuentoML);
+  document.getElementById('d-pct').textContent    = pctML + ' del precio';
+  document.getElementById('d-costo').textContent  = '-' + fmt(costo);
   const dG = document.getElementById('d-ganancia');
   dG.textContent = fmt(ganancia);
   dG.className   = 'dv ' + cls;
   document.getElementById('desglose-card').className = 'desglose-card visible';
   document.getElementById('inner-tabs').style.display = 'flex';
 
-  // Guardar producto
-  const prod = { id: editandoId || uid(), nombre, precio, neto, costo, descuentoML, ganancia, pctML, competidores: [...competidores], fecha: new Date().toLocaleDateString('es-AR') };
+  // Reset mayorista result cuando se calcula nuevo producto
+  document.getElementById('may-result').className = 'may-result';
+  document.getElementById('may-precio').value = '';
+  mayoristas = [];
+  renderMayoristas();
+
+  // Guardar
+  const prod = {
+    id: editandoId || uid(),
+    nombre, precio, neto, costo, descuentoML, ganancia, pctML,
+    competidores: [...competidores],
+    mayoristas: [],
+    fecha: new Date().toLocaleDateString('es-AR')
+  };
 
   if (editandoId) {
     const idx = productos.findIndex(p => p.id === editandoId);
@@ -500,7 +553,7 @@ function calcular() {
   actualizarBadge();
   actualizarCompSummary();
 
-  // Limpiar form para el próximo producto
+  // Limpiar form
   document.getElementById('nombre').value = '';
   document.getElementById('precio').value = '';
   document.getElementById('neto').value   = '';
@@ -508,158 +561,101 @@ function calcular() {
   document.getElementById('nombre').focus();
 }
 
-// ═══════════════════════════════════════════
-//  BADGE COUNTER
-// ═══════════════════════════════════════════
 function actualizarBadge() {
   document.getElementById('badge-count').textContent = productos.length;
 }
 
 // ═══════════════════════════════════════════
-//  LISTA DE PRODUCTOS
+//  MAYORISTA
 // ═══════════════════════════════════════════
-function renderLista() {
-  const container = document.getElementById('lista-container');
-  const empty     = document.getElementById('lista-empty');
-  const resumen   = document.getElementById('lista-resumen');
+function calcularMayorista() {
+  const mayPrecio = parseFloat(document.getElementById('may-precio').value) || 0;
+  if (!mayPrecio) { document.getElementById('may-precio').focus(); return; }
+  if (!miNeto)    { alert('Primero calculá el producto con su neto de ML.'); return; }
 
-  // Limpiar items previos (mantener el empty div)
-  container.querySelectorAll('.prod-card').forEach(el => el.remove());
+  const diff     = miNeto - mayPrecio;
+  const margenPct = mayPrecio > 0 ? ((diff / mayPrecio) * 100).toFixed(1) : 0;
 
-  if (!productos.length) {
-    empty.style.display = 'block';
-    resumen.className   = 'lista-resumen';
-    return;
+  // Veredicto
+  let estado, icon, titulo, subtitulo, diffCls;
+  if (diff > 0) {
+    estado    = 'arriba';
+    icon      = '✅';
+    titulo    = 'Vendés POR ARRIBA del mayorista';
+    subtitulo = `Te quedan ${fmt(diff)} por encima del precio mayorista`;
+    diffCls   = 'pos';
+  } else if (diff < 0) {
+    estado    = 'abajo';
+    icon      = '🚨';
+    titulo    = 'Vendés POR DEBAJO del mayorista';
+    subtitulo = `Estás perdiendo ${fmt(Math.abs(diff))} por unidad vendida`;
+    diffCls   = 'neg';
+  } else {
+    estado    = 'igual';
+    icon      = '⚠️';
+    titulo    = 'Vendés AL PRECIO del mayorista';
+    subtitulo = 'No te queda margen sobre el precio mayorista';
+    diffCls   = 'ora';
   }
 
-  empty.style.display = 'none';
-  resumen.className   = 'lista-resumen visible';
+  const veredicto = document.getElementById('may-veredicto');
+  veredicto.className = 'may-veredicto ' + estado;
+  document.getElementById('mv-icon').textContent  = icon;
+  const mvT = document.getElementById('mv-title');
+  mvT.textContent  = titulo;
+  mvT.className    = 'mv-title ' + estado;
+  document.getElementById('mv-sub').textContent   = subtitulo;
 
-  // Resumen
-  const totalGan = productos.reduce((s, p) => s + p.ganancia, 0);
-  const promGan  = totalGan / productos.length;
-  document.getElementById('lr-productos').textContent = productos.length;
-  const lrG = document.getElementById('lr-ganancia');
-  lrG.textContent = fmt(totalGan);
-  lrG.className   = 'lr-val ' + (totalGan >= 0 ? 'pos' : 'neg');
-  document.getElementById('lr-promedio').textContent = fmt(promGan);
+  document.getElementById('mv-precio-may').textContent = fmt(mayPrecio);
+  document.getElementById('mv-neto').textContent       = fmt(miNeto);
+  const mvDiff = document.getElementById('mv-diff');
+  mvDiff.textContent = (diff >= 0 ? '+' : '') + fmt(diff);
+  mvDiff.className   = 'mr-v ' + diffCls;
+  const mvMar = document.getElementById('mv-margen');
+  mvMar.textContent = (diff >= 0 ? '+' : '') + margenPct + '%';
+  mvMar.className   = 'mr-v ' + diffCls;
 
-  // Cards
-  productos.forEach((p, i) => {
-    const cls = p.ganancia > 0 ? 'pos' : p.ganancia < 0 ? 'neg' : 'neu';
-    const card = document.createElement('div');
-    card.className = 'prod-card';
-    card.id = 'pc-' + p.id;
+  document.getElementById('may-result').className = 'may-result visible';
 
-    const pctGan = pct(Math.abs(p.ganancia), p.precio);
-    const signo  = p.ganancia >= 0 ? '+' : '';
+  // Guardar mayorista en la lista del panel
+  mayoristas.push({ id: mayId++, precio: mayPrecio, diff, estado, margenPct });
+  renderMayoristas();
+  document.getElementById('may-precio').value = '';
+  document.getElementById('may-precio').focus();
+}
 
-    card.innerHTML = `
-      <div class="prod-card-header" onclick="toggleCard('${p.id}')">
-        <span class="pc-num">#${productos.length - i}</span>
-        <span class="pc-name">${p.nombre}</span>
-        <span class="pc-gan ${cls}">${fmt(p.ganancia)}</span>
-        <span class="pc-arrow">▼</span>
+function renderMayoristas() {
+  const wrap = document.getElementById('may-list-wrap');
+  const list = document.getElementById('may-list');
+  list.innerHTML = '';
+
+  if (!mayoristas.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  mayoristas.forEach((m, i) => {
+    const cls   = m.estado === 'arriba' ? 'pos' : m.estado === 'abajo' ? 'neg' : 'ora';
+    const emoji = m.estado === 'arriba' ? '✅' : m.estado === 'abajo' ? '🚨' : '⚠️';
+    const signo = m.diff >= 0 ? '+' : '';
+    const el = document.createElement('div');
+    el.className = 'may-item';
+    el.innerHTML = `
+      <div class="mi-info">
+        <div class="mi-nombre">Mayorista #${i + 1}</div>
+        <div class="mi-precio">Precio: ${fmt(m.precio)} · Neto ML: ${fmt(miNeto)}</div>
       </div>
-      <div class="prod-card-body">
-        <div class="pcb-grid">
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Precio venta</div>
-            <div class="pcbi-val">${fmt(p.precio)}</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Neto ML</div>
-            <div class="pcbi-val pos">${fmt(p.neto)}</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">ML se llevó</div>
-            <div class="pcbi-val neg">-${fmt(p.descuentoML)} (${p.pctML})</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Mi costo</div>
-            <div class="pcbi-val neg">-${fmt(p.costo)}</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Ganancia</div>
-            <div class="pcbi-val ${cls}">${fmt(p.ganancia)} (${signo}${pctGan})</div>
-          </div>
-          <div class="pcb-item">
-            <div class="pcbi-lbl">Fecha</div>
-            <div class="pcbi-val neu" style="font-size:13px">${p.fecha}</div>
-          </div>
-        </div>
-        ${p.competidores && p.competidores.length ? renderCompMini(p) : ''}
-        <div class="pcb-actions">
-          <button class="btn-edit" onclick="editarProducto('${p.id}')">✏️ Editar</button>
-          <button class="btn-del-prod" onclick="eliminarProducto('${p.id}')">🗑 Eliminar</button>
-        </div>
+      <div class="mi-estado" style="color:var(--${cls === 'pos' ? 'green' : cls === 'neg' ? 'red' : 'orange'})">
+        ${emoji} ${signo}${fmt(m.diff)}
+        <span class="ms-monto">${signo}${m.margenPct}% margen</span>
       </div>
+      <button class="mi-del" onclick="eliminarMay(${m.id})">✕</button>
     `;
-    container.appendChild(card);
+    list.appendChild(el);
   });
 }
 
-function renderCompMini(p) {
-  const sorted = [...p.competidores].sort((a, b) => a.precio - b.precio);
-  const avg = sorted.reduce((s, c) => s + c.precio, 0) / sorted.length;
-  const diff = p.precio - avg;
-  const diffPct = Math.abs(diff / avg * 100).toFixed(1);
-  const posCls = diff > 50 ? 'mas-caro' : diff < -50 ? 'mas-barato' : 'igual';
-  const posTxt = diff > 50 ? `+${diffPct}% vs promedio` : diff < -50 ? `-${diffPct}% vs promedio` : '≈ similar al promedio';
-
-  const rows = sorted.slice(0, 3).map((c, i) => `
-    <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--muted2)">
-      <span>#${i+1} ${c.nombre}</span>
-      <span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--text)">${fmt(c.precio)}</span>
-    </div>`).join('');
-
-  return `
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Competencia guardada</div>
-      ${rows}
-      <div style="margin-top:6px;font-size:11px;font-weight:600" class="ci-diff ${posCls}">${posTxt}</div>
-    </div>`;
-}
-
-function toggleCard(id) {
-  const card = document.getElementById('pc-' + id);
-  if (card) card.classList.toggle('open');
-}
-
-function eliminarProducto(id) {
-  if (!confirm('¿Eliminar este producto?')) return;
-  productos = productos.filter(p => p.id !== id);
-  guardar();
-  actualizarBadge();
-  renderLista();
-}
-
-function editarProducto(id) {
-  const prod = productos.find(p => p.id === id);
-  if (!prod) return;
-  editandoId = id;
-  document.getElementById('nombre').value = prod.nombre;
-  document.getElementById('precio').value = prod.precio;
-  document.getElementById('neto').value   = prod.neto;
-  document.getElementById('costo').value  = prod.costo;
-  competidores = [...(prod.competidores || [])];
-  miPrecio = prod.precio;
-  renderCompetidores();
-  // Ir al panel agregar
-  document.querySelector('.main-tab.active')?.classList.remove('active');
-  document.querySelector('.main-panel.active')?.classList.remove('active');
-  document.querySelectorAll('.main-tab')[0].classList.add('active');
-  document.getElementById('panel-agregar').classList.add('active');
-  document.getElementById('nombre').focus();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function limpiarTodo() {
-  if (!confirm('¿Borrar todos los productos? Esta acción no se puede deshacer.')) return;
-  productos = [];
-  guardar();
-  actualizarBadge();
-  renderLista();
+function eliminarMay(id) {
+  mayoristas = mayoristas.filter(m => m.id !== id);
+  renderMayoristas();
 }
 
 // ═══════════════════════════════════════════
@@ -685,10 +681,8 @@ function renderCompetidores() {
   const list  = document.getElementById('comp-list');
   const empty = document.getElementById('comp-empty');
   list.querySelectorAll('.comp-item').forEach(el => el.remove());
-
   if (!competidores.length) { empty.style.display = 'block'; actualizarCompSummary(); return; }
   empty.style.display = 'none';
-
   const sorted = [...competidores].sort((a, b) => a.precio - b.precio);
   sorted.forEach((c, i) => {
     let diffTxt = '', diffCls = '';
@@ -728,12 +722,144 @@ function actualizarCompSummary() {
 }
 
 // ═══════════════════════════════════════════
+//  LISTA DE PRODUCTOS
+// ═══════════════════════════════════════════
+function renderLista() {
+  const container = document.getElementById('lista-container');
+  const empty     = document.getElementById('lista-empty');
+  const resumen   = document.getElementById('lista-resumen');
+  container.querySelectorAll('.prod-card').forEach(el => el.remove());
+
+  if (!productos.length) {
+    empty.style.display = 'block';
+    resumen.className   = 'lista-resumen';
+    return;
+  }
+
+  empty.style.display = 'none';
+  resumen.className   = 'lista-resumen visible';
+
+  const totalGan = productos.reduce((s, p) => s + p.ganancia, 0);
+  const promGan  = totalGan / productos.length;
+  document.getElementById('lr-productos').textContent = productos.length;
+  const lrG = document.getElementById('lr-ganancia');
+  lrG.textContent = fmt(totalGan);
+  lrG.className   = 'lr-val ' + (totalGan >= 0 ? 'pos' : 'neg');
+  document.getElementById('lr-promedio').textContent = fmt(promGan);
+
+  productos.forEach((p, i) => {
+    const cls    = p.ganancia > 0 ? 'pos' : p.ganancia < 0 ? 'neg' : 'neu';
+    const pctGan = pct(Math.abs(p.ganancia), p.precio);
+    const signo  = p.ganancia >= 0 ? '+' : '';
+
+    // Mayorista badge en lista
+    let mayBadge = '';
+    if (p.mayoristas && p.mayoristas.length) {
+      const m = p.mayoristas[0];
+      const mcls = m.estado === 'arriba' ? 'pos' : m.estado === 'abajo' ? 'neg' : 'ora';
+      const memoji = m.estado === 'arriba' ? '✅' : m.estado === 'abajo' ? '🚨' : '⚠️';
+      mayBadge = `<div class="pcb-item">
+        <div class="pcbi-lbl">vs Mayorista</div>
+        <div class="pcbi-val ${mcls}">${memoji} ${m.estado === 'arriba' ? 'Por arriba' : m.estado === 'abajo' ? 'Por abajo' : 'Igual'}</div>
+      </div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'prod-card';
+    card.id = 'pc-' + p.id;
+    card.innerHTML = `
+      <div class="prod-card-header" onclick="toggleCard('${p.id}')">
+        <span class="pc-num">#${productos.length - i}</span>
+        <span class="pc-name">${p.nombre}</span>
+        <span class="pc-gan ${cls}">${fmt(p.ganancia)}</span>
+        <span class="pc-arrow">▼</span>
+      </div>
+      <div class="prod-card-body">
+        <div class="pcb-grid">
+          <div class="pcb-item">
+            <div class="pcbi-lbl">Precio venta</div>
+            <div class="pcbi-val">${fmt(p.precio)}</div>
+          </div>
+          <div class="pcb-item">
+            <div class="pcbi-lbl">Neto ML</div>
+            <div class="pcbi-val pos">${fmt(p.neto)}</div>
+          </div>
+          <div class="pcb-item">
+            <div class="pcbi-lbl">ML se llevó</div>
+            <div class="pcbi-val neg">-${fmt(p.descuentoML)} (${p.pctML})</div>
+          </div>
+          <div class="pcb-item">
+            <div class="pcbi-lbl">Mi costo</div>
+            <div class="pcbi-val neg">-${fmt(p.costo)}</div>
+          </div>
+          <div class="pcb-item">
+            <div class="pcbi-lbl">Ganancia</div>
+            <div class="pcbi-val ${cls}">${fmt(p.ganancia)} (${signo}${pctGan})</div>
+          </div>
+          <div class="pcb-item">
+            <div class="pcbi-lbl">Fecha</div>
+            <div class="pcbi-val neu" style="font-size:13px">${p.fecha}</div>
+          </div>
+          ${mayBadge}
+        </div>
+        <div class="pcb-actions">
+          <button class="btn-edit" onclick="editarProducto('${p.id}')">✏️ Editar</button>
+          <button class="btn-del-prod" onclick="eliminarProducto('${p.id}')">🗑 Eliminar</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('pc-' + id);
+  if (card) card.classList.toggle('open');
+}
+
+function eliminarProducto(id) {
+  if (!confirm('¿Eliminar este producto?')) return;
+  productos = productos.filter(p => p.id !== id);
+  guardar();
+  actualizarBadge();
+  renderLista();
+}
+
+function editarProducto(id) {
+  const prod = productos.find(p => p.id === id);
+  if (!prod) return;
+  editandoId = id;
+  document.getElementById('nombre').value = prod.nombre;
+  document.getElementById('precio').value = prod.precio;
+  document.getElementById('neto').value   = prod.neto;
+  document.getElementById('costo').value  = prod.costo;
+  competidores = [...(prod.competidores || [])];
+  mayoristas   = [...(prod.mayoristas   || [])];
+  miPrecio = prod.precio;
+  miNeto   = prod.neto;
+  renderCompetidores();
+  renderMayoristas();
+  document.querySelectorAll('.main-tab')[0].click();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('nombre').focus();
+}
+
+function limpiarTodo() {
+  if (!confirm('¿Borrar todos los productos?')) return;
+  productos = [];
+  guardar();
+  actualizarBadge();
+  renderLista();
+}
+
+// ═══════════════════════════════════════════
 //  TECLADO
 // ═══════════════════════════════════════════
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const id = document.activeElement.id;
   if (id === 'comp-nombre' || id === 'comp-precio') agregarComp();
+  else if (id === 'may-precio') calcularMayorista();
   else if (['nombre','precio','neto','costo'].includes(id)) calcular();
 });
 
