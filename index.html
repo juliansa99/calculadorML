@@ -829,6 +829,29 @@ function renderLista() {
           </div>
           ${mayBadge}
         </div>
+        ${(()=>{
+          if (!p.competidores || !p.competidores.length) return '';
+          const sorted = [...p.competidores].sort((a,b) => a.precio - b.precio);
+          const filas = sorted.map((c,ci) => {
+            const diff = p.precio - c.precio;
+            const dp   = Math.abs(diff / c.precio * 100).toFixed(1);
+            let difftxt, diffcolor;
+            if (diff > 50)       { difftxt = 'Vos +'+dp+'%'; diffcolor='var(--green)'; }
+            else if (diff < -50) { difftxt = 'Vos -'+dp+'%'; diffcolor='var(--red)'; }
+            else                 { difftxt = '≈ igual';       diffcolor='var(--muted2)'; }
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12.5px">'
+              + '<span style="color:var(--muted2)">#'+(ci+1)+' '+c.nombre+'</span>'
+              + '<span style="display:flex;gap:10px;align-items:center">'
+              + '<span style="color:'+diffcolor+';font-weight:700;font-size:11px">'+difftxt+'</span>'
+              + '<span style="font-family:Syne,sans-serif;font-weight:800">'+fmt(c.precio)+'</span>'
+              + '</span>'
+              + '</div>';
+          }).join('');
+          return '<div style="margin-bottom:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px">'
+            + '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">⚔️ Competencia</div>'
+            + filas
+            + '</div>';
+        })()}
         <div class="pcb-actions">
           <button class="btn-edit" onclick="editarProducto('${p.id}')">✏️ Editar</button>
           <button class="btn-del-prod" onclick="eliminarProducto('${p.id}')">🗑 Eliminar</button>
