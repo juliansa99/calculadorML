@@ -454,10 +454,10 @@ function calcular() {
   if (!precio || !neto) { alert('Completá el precio de venta y lo que te queda de ML.'); return; }
 
   miPrecio = precio;
-  miNeto   = netoReal;
 
   const costoEnvio  = precio > 33000 ? 7230 : 0;
   const netoReal    = neto - costoEnvio;
+  miNeto            = netoReal;
   const descuentoML = precio - netoReal;
   const ganancia    = netoReal - costo;
   const pctML       = pct(descuentoML, precio);
