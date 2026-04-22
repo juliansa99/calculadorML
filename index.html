@@ -336,16 +336,21 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
 
 <script>
 // ═══ FIREBASE INIT ═══
-const firebaseConfig = {
-  apiKey: "AIzaSyDEfm8gwvUJ6K0SM7PciAAK0KPf35AdbI0",
-  authDomain: "analizador-ml.firebaseapp.com",
-  projectId: "analizador-ml",
-  storageBucket: "analizador-ml.firebasestorage.app",
-  messagingSenderId: "1079547603597",
-  appId: "1:1079547603597:web:4aea410c162ee7f474d0c4"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+let db = null;
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDEfm8gwvUJ6K0SM7PciAAK0KPf35AdbI0",
+    authDomain: "analizador-ml.firebaseapp.com",
+    projectId: "analizador-ml",
+    storageBucket: "analizador-ml.firebasestorage.app",
+    messagingSenderId: "1079547603597",
+    appId: "1:1079547603597:web:4aea410c162ee7f474d0c4"
+  };
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  }
+} catch(e) { console.warn('Firebase init error:', e); }
 
 function setSyncDot(state) {
   const dot = document.getElementById('sync-dot');
@@ -377,14 +382,21 @@ function uid() { return Date.now() + Math.random().toString(36).slice(2); }
 // ═══ GUARDAR / CARGAR (Firebase + localStorage) ═══
 function guardar() {
   localStorage.setItem('ml_productos', JSON.stringify(productos));
-  setSyncDot('');
-  db.collection('datos').doc('productos').set({ lista: productos })
-    .then(() => setSyncDot('ok'))
-    .catch(() => setSyncDot('err'));
+  if (db) {
+    setSyncDot('');
+    db.collection('datos').doc('productos').set({ lista: productos })
+      .then(() => setSyncDot('ok'))
+      .catch(() => setSyncDot('err'));
+  }
 }
 
 function cargarProductos() {
   const local = JSON.parse(localStorage.getItem('ml_productos') || '[]');
+  if (!db) {
+    productos = local;
+    actualizarBadge();
+    return;
+  }
   db.collection('datos').doc('productos').get()
     .then(snap => {
       const remoto = snap.exists ? (snap.data().lista || []) : [];
@@ -392,7 +404,6 @@ function cargarProductos() {
         productos = remoto;
       } else {
         productos = local;
-        // Subir local a Firebase si tiene más datos
         db.collection('datos').doc('productos').set({ lista: local }).catch(() => {});
       }
       localStorage.setItem('ml_productos', JSON.stringify(productos));
