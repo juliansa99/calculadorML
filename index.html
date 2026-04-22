@@ -224,9 +224,9 @@ body::before { content: ''; position: fixed; inset: 0; background-image: url("da
           <div class="field-input"><span class="signo">$</span><input type="number" id="costo" placeholder="0" min="0" step="100"></div>
         </div>
         <div class="field full">
-          <label>Lo que me queda de ML (después de comisiones y retenciones)</label>
+          <label>Lo que me acredita ML (antes del envío)</label>
           <div class="field-input green"><span class="signo">$</span><input type="number" id="neto" placeholder="0" min="0" step="100"></div>
-          <div class="helper">Neto acreditado en Mercado Pago después de descontar todo</div>
+          <div class="helper">Lo que te deposita ML — si el precio es +$33.000 se descuentan $7.230 de envío automáticamente</div>
         </div>
         <div class="field full">
           <label>Precio mayorista (opcional)</label>
@@ -496,7 +496,7 @@ function calcular() {
 
   let mayData = null;
   if (mayPrecio > 0) {
-    const mayDiff   = neto - mayPrecio;
+    const mayDiff   = netoReal - mayPrecio;
     const mayMargen = ((mayDiff / mayPrecio) * 100).toFixed(1);
     const mayEstado = mayDiff > 0 ? 'arriba' : mayDiff < 0 ? 'abajo' : 'igual';
     mayData = { id: 1, precio: mayPrecio, diff: mayDiff, margenPct: mayMargen, estado: mayEstado };
@@ -771,7 +771,7 @@ function editarProducto(id) {
   competidores = [...(prod.competidores || [])];
   mayoristas   = [...(prod.mayoristas   || [])];
   miPrecio = prod.precio;
-  miNeto   = prod.neto;
+  miNeto   = prod.netoReal !== undefined ? prod.netoReal : prod.neto;
   renderCompetidores();
   renderMayoristas();
   document.getElementById('tab-agregar').click();
